@@ -1,7 +1,7 @@
 {
-  "commit": "27474d571f15e1504cb3600cbbf3278d74ba5f16",
-  "commit_date": "2026-10-28T21:23:29+03:00",
-  "exported_at": "2026-10-28T18:24:18+00:00",
+  "commit": "509e217033aa8324b90a9c1ba6e4b19dbafa543c",
+  "commit_date": "2026-10-28T22:21:27+03:00",
+  "exported_at": "2026-10-28T19:22:09+00:00",
   "exporter": "scripts/showcase-export.py",
   "conf_sha256": {
     "cut.toml": "7252671f9bfe17b4582b6882e546c6975d7d7fa407f22b3abec99e0fdf51835c",

@@ -15,7 +15,7 @@ concurrency:
 jobs:
   python:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60  # раннер приватного репозитория — 2 ядра, набор идёт ~30 мин
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
