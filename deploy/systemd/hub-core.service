@@ -1,0 +1,31 @@
+# hub core: публичное приложение (127.0.0.1:8787) + внутренний сокет.
+# Ставится ТОЛЬКО через scripts/hub-units-install.sh (владелец) — агент этот юнит не устанавливает и не
+# запускает systemctl. Песочница проверена живьём (systemd-run --user) — что не применилось на этой машине,
+# см. отчёт исполнителя куска 7.
+
+[Unit]
+Description=hub core (публичный API + внутренний сокет коннекторов)
+After=network.target
+
+[Service]
+Type=simple
+# Ф10-7: второй слушатель 127.0.0.1:8790 — только для туннеля с телефона (hub-tunnel@.service); пока доступ
+# с телефона не включён в UI, на нём всё отвечает 421. Порт занят — ядро стартует без него (громко в журнале).
+ExecStart=%h/projects/hub-prod/.venv/bin/hub core --remote-port 8790
+Restart=on-failure
+RestartSec=3
+# Заметно больше таймаута age в backup.py (60 с) плюс VACUUM: остановка посреди бэкапа должна дождаться
+# `finally` с удалением открытой копии, а не кончиться SIGKILL на умолчательных 90 с.
+TimeoutStopSec=180
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/hub %h/.config/hub
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+
+[Install]
+WantedBy=default.target

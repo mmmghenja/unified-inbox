@@ -1,0 +1,11 @@
+-- Ф57-1 (docs/architecture.md): режима «разобрать» (`triage`) в политике проектов
+-- больше нет. В объекте `attention` значения `triage`: ключи `dm`, `mpim`, `mail_thread` -> `react`; ключи
+-- `default` и `account:<id>` — удаляются (дальше решают вид и встроенное умолчание: почта `react`, остальное
+-- `info`); прочие ключи вида -> `info`. Значения не `triage` и ключи политики вне `attention` — как были.
+-- Битый JSON, `attention` не объектом, NULL — строка не трогается.
+-- Перед сменой политики: проекты, где почта была в «разобрать» (ключ `mail_thread`, либо `default` без ключа
+-- `mail_thread`, либо ключ аккаунта), — в `meta`. Почта аккаунта может лежать в файле work, которого миграция
+-- main не видит: старые письма этих проектов помечает рассылкой разовый шаг ядра после миграций
+-- (`db._f57_mail_backlog`), иначе они разом встали бы в «Нужна реакция».
+INSERT OR REPLACE INTO meta (key, value) SELECT 'f57_mail_backlog_projects', json_group_array(id) FROM project WHERE CASE WHEN json_valid(agent_policy_json) THEN json_type(agent_policy_json, '$.attention') = 'object' ELSE 0 END AND (json_extract(agent_policy_json, '$.attention.mail_thread') = 'triage' OR (json_type(agent_policy_json, '$.attention.mail_thread') IS NULL AND json_extract(agent_policy_json, '$.attention.default') = 'triage') OR EXISTS (SELECT 1 FROM json_each(agent_policy_json, '$.attention') AS a WHERE a.key LIKE 'account:%' AND a.type = 'text' AND a.value = 'triage'));
+UPDATE project SET agent_policy_json = json_set(agent_policy_json, '$.attention', (SELECT json_group_object(e.key, CASE WHEN e.type = 'text' AND e.value = 'triage' THEN CASE WHEN e.key IN ('dm', 'mpim', 'mail_thread') THEN 'react' ELSE 'info' END WHEN e.type IN ('object', 'array') THEN json(e.value) WHEN e.type IN ('true', 'false', 'null') THEN json(e.type) ELSE json(json_quote(e.value)) END) FROM json_each(agent_policy_json, '$.attention') AS e WHERE NOT (e.type = 'text' AND e.value = 'triage' AND (e.key = 'default' OR e.key LIKE 'account:%')))) WHERE CASE WHEN json_valid(agent_policy_json) THEN json_type(agent_policy_json, '$.attention') = 'object' ELSE 0 END AND EXISTS (SELECT 1 FROM json_each(agent_policy_json, '$.attention') AS t WHERE t.type = 'text' AND t.value = 'triage');

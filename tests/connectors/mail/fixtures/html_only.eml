@@ -1,0 +1,19 @@
+MIME-Version: 1.0
+Message-ID: <news-1@example.com>
+Subject: News
+From: News <news@example.com>
+To: me@gmail.com
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html><head><title>=D0=A0=D0=B0=D1=81=D1=81=D1=8B=D0=BB=D0=BA=D0=B0</title>=
+<style>p{color:red}</style><script>alert('x')</script></head><body><h1>=D0=
+=9D=D0=BE=D0=B2=D0=BE=D1=81=D1=82=D0=B8&nbsp;=D0=BD=D0=B5=D0=B4=D0=B5=D0=BB=
+=D0=B8</h1><p>=D0=A6=D0=B5=D0=BD=D1=8B &laquo;=D0=BD=D0=B8=D0=B6=D0=B5&raqu=
+o; =D0=BD=D0=B0 10&#37; &amp; =D0=B1=D0=BE=D0=BB=D1=8C=D1=88=D0=B5.</p><p>=
+=D0=9F=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5: <a href=3D"https://=
+example.com/news?id=3D5">=D0=BD=D0=B0 =D1=81=D0=B0=D0=B9=D1=82=D0=B5</a>, <=
+a href=3D"https://example.com/">https://example.com/</a></p><img src=3D"htt=
+ps://track.example.com/p.gif" alt=3D""><table><tr><td>=D0=98=D1=82=D0=BE=D0=
+=B3=D0=BE</td><td>100</td></tr></table><p>=D0=A1=D1=82=D1=80=D0=BE=D0=BA=D0=
+=B0 1<br>=D0=A1=D1=82=D1=80=D0=BE=D0=BA=D0=B0 2</p></body></html>

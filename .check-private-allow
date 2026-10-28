@@ -1,0 +1,64 @@
+# Allow-list for scripts/check-private.sh. Every line was reviewed: synthetic test data or protocol identifiers.
+#   <glob> <rule>[,<rule>…]           — findings of these rules in matching files
+#   <domain> email-domain [<glob>]    — addresses on the domain (and subdomains), everywhere or under the glob
+
+# Made-up domains used as sample addresses in tests.
+x.ru email-domain
+y.ru email-domain
+b.ru email-domain
+c.ru email-domain
+b.co email-domain
+b.cc email-domain
+box.ru email-domain
+home.ru email-domain
+other.ru email-domain
+client.ru email-domain
+company.ru email-domain
+corp.io email-domain
+umbrella.ru email-domain
+example.ru email-domain
+example.co email-domain
+badexample.com email-domain
+my.site.com.ua email-domain
+acme.atlassian.net email-domain
+# Look-alike domains in tests of sender checks.
+evil.io email-domain tests/*
+evil.ru email-domain tests/*
+evil-atlassian.net email-domain tests/*
+atlassian.net.evil.com email-domain tests/*
+example.com.evil.ru email-domain tests/*
+trel1o.com email-domain tests/*
+
+# Mail providers: only made-up mailboxes in tests (me@, a@, petr@ …).
+gmail.com email-domain tests/*
+gmail.com email-domain ui/tests/*
+googlemail.com email-domain tests/*
+mail.ru email-domain tests/*
+icloud.com email-domain tests/*
+x.com email-domain tests/*
+
+# Protocol identifiers, not mailboxes: WhatsApp JIDs, Message-IDs, service senders, Telegram links.
+s.whatsapp.net email-domain
+g.us email-domain
+mail.gmail.com email-domain tests/*
+prod.outlook.com email-domain tests/*
+amazonses.com email-domain tests/*
+googlegroups.com email-domain tests/*
+trello.com email-domain tests/*
+t.me email-domain tests/*
+# Font license contact (SIL Open Font License text).
+sil.org email-domain src/hub/images/fonts/*
+
+# Fake keys: tests check that a key-shaped secret is masked.
+tests/api/test_f33_remote_alive.py api-key
+tests/core/test_transcript_tail.py api-key
+tests/images/conftest.py api-key
+# Phone parsing tests: a UK drama number (Ofcom range) and a made-up +7 000 number.
+tests/api/test_f34_tg_phone.py phone
+tests/connectors/telegram/test_auth.py phone
+# Private-network addresses are the subject of these tests (remote access, ssh detection).
+tests/api/test_f95_reg_mail_rule.py private-ip
+tests/core/test_f76_decision_print.py private-ip
+tests/core/test_f95_reg_domain.py private-ip
+tests/core/test_remote.py private-ip
+ui/tests/40-remote-ui.spec.ts private-ip

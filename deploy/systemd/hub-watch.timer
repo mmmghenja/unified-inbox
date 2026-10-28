@@ -1,0 +1,12 @@
+# Спецификация: docs/architecture.md
+
+[Unit]
+Description=hub watch — таймер
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+AccuracySec=15s
+
+[Install]
+WantedBy=timers.target

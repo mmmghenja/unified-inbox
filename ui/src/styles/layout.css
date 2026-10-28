@@ -1,0 +1,2280 @@
+/* CSS grid, три колонки (план, раздел 6). Красота — потом. Высота `.app-root` — в shell.css. */
+.main-app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+/* Ф10-6: верхняя полоса, колонки бесед и три ширины — `styles/shell.css`. */
+
+.column {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.column-feed {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  border-right: none;
+  padding: 0;
+  min-height: 0;
+}
+
+.placeholder-column {
+  color: var(--muted-fg);
+  padding: 1rem;
+}
+
+.project-button,
+.channel-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  color: inherit;
+}
+
+.project-button.active,
+.channel-button.active {
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.channel-button.muted {
+  color: var(--muted-fg);
+}
+
+.color-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.project-name,
+.channel-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  font-size: 0.75rem;
+}
+
+/* Ф8-3 D2: непрочитанное, требующее реакции, — красный счётчик; прочее непрочитанное — серый. */
+.badge-react {
+  background: var(--danger);
+}
+
+.badge-quiet {
+  background: var(--muted-fg);
+}
+
+/* Ф12-1 C2: беседа-заготовка черновика новому адресату — пометка «новая» в списке. */
+.badge-new-channel {
+  background: none;
+  color: var(--muted-fg);
+  border: 1px solid var(--border);
+}
+
+.attention-select {
+  margin-left: auto;
+  margin-right: 0.5rem;
+}
+
+.channel-group-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--muted-fg);
+  margin: 0.75rem 0 0.25rem;
+}
+
+.feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.message-feed {
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
+}
+
+.message-row {
+  padding: 0.4rem 0;
+  border-bottom: 1px dotted var(--border);
+}
+
+.message-row.mine {
+  text-align: right;
+}
+
+.message-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+/* Ф11-4 И2: в узкой панели треда (360 px) и на телефоне шапка не рвётся по слогам: имя обрезается
+   многоточием (и оставляет место времени на той же строке), время не переносится, пометки и кнопки уходят
+   на следующую строку целиком. */
+.message-meta .sender-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: calc(100% - 6em);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-meta .message-ts {
+  flex: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.message-meta > .thread-broadcast-tag,
+.message-meta > .bot-mark,
+.message-meta > .peer-read-mark,
+.message-meta > .deleted-mark,
+.message-meta > .edited-mark {
+  flex: none;
+  white-space: nowrap;
+}
+
+.message-deleted {
+  font-style: italic;
+  color: var(--muted-fg);
+}
+
+/* Ф8-1 C2: удалённое отправителем остаётся видно целиком, но приглушённо, с пометкой «удалено» у времени. */
+.message-row--deleted {
+  opacity: 0.6;
+}
+
+.deleted-mark {
+  font-style: italic;
+  color: var(--danger);
+}
+
+/* Ф20-1 A3: метка «бот» у имени отправителя — мелко и приглушённо. */
+.bot-mark {
+  font-size: 0.8em;
+  color: var(--muted-fg);
+}
+
+/* Ф11-7: «✓» доставлено / «✓✓» прочитано собеседником — у моих сообщений Telegram. */
+.peer-read-mark {
+  color: var(--muted-fg);
+  letter-spacing: -0.2em;
+}
+
+.peer-read-mark--read {
+  color: var(--accent);
+}
+
+.msg-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Ф40-4 A1: Markdown беседы Mattermost — свои переносы (`.md`), не `pre-wrap`. */
+.msg-text--md {
+  white-space: normal;
+}
+
+.entity-mention {
+  color: var(--accent);
+}
+
+/* Спека 1d-1, п.6: служебные (kind='event') — серой строкой по центру, без отправителя. */
+.message-row--event {
+  text-align: center;
+  border-bottom: none;
+}
+
+.event-text {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Ф17-3: пост канала в его группе обсуждения — серой строкой, текст по «показать» — отдельным блоком. */
+.channel-post-toggle {
+  margin-left: 0.4rem;
+}
+
+.channel-post-text {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--fg);
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.forwarded {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  font-style: italic;
+  margin: 0 0 0.15rem;
+}
+
+/* Спека 1d-1, п.1: вложения — «📎 <тип> <имя> <размер>»; ссылка «открыть в Telegram» убрана (Ф8-5 B5). */
+.attachments {
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
+.attachment {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+/* Ф8-5 B: медиа в ленте. Превью вписано в 320×320 (размер ставит компонент по пропорциям источника), альбом —
+   сетка 2–3 в ряд, просмотр — во весь экран поверх. */
+.media-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0.25rem 0 0;
+}
+
+.media-grid--album {
+  display: grid;
+  grid-template-columns: repeat(3, 106px);
+  grid-auto-rows: 106px;
+}
+
+.media-thumb {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  max-width: 320px;
+  max-height: 320px;
+  min-height: 80px; /* Ф23-1 п.6: картинка без известных размеров не схлопывается до загрузки */
+  overflow: hidden;
+  display: block;
+}
+
+.media-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 320px;
+  max-height: 320px;
+  object-fit: contain;
+}
+
+.media-grid--two {
+  grid-template-columns: repeat(2, 160px);
+  grid-auto-rows: 160px;
+}
+
+.media-grid--album .media-thumb,
+.media-grid--album .media-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.media-grid--album .media-img {
+  object-fit: cover;
+}
+
+.media-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 320px;
+  max-height: 320px;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  background: rgb(127 127 127 / 15%);
+}
+
+.media-video {
+  display: block;
+  max-width: 320px;
+  max-height: 320px;
+}
+
+.media-status {
+  color: var(--muted-fg);
+}
+
+.media-status--error {
+  color: var(--danger);
+}
+
+.media-fetch {
+  font-size: 0.8rem;
+}
+
+/* Ф14-6b: расшифровка голосового под плеером — простой текст, выделяется и копируется. Строка вложения
+   с расшифровкой — столбцом: блок под плеером, а не рядом. */
+.attachment:has(> .transcript) {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.transcript {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  max-width: 480px;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.transcript__text {
+  flex-basis: 100%;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.transcript__lang {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+}
+
+.transcript__status {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+}
+
+.transcript__more,
+.transcript__action {
+  font-size: 0.8rem;
+}
+
+.media-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-viewer);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 85%);
+  cursor: zoom-out;
+}
+
+.media-viewer__img {
+  max-width: 95vw;
+  max-height: 95vh;
+  object-fit: contain;
+}
+
+.media-viewer__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.5rem;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0 1rem;
+}
+
+.media-viewer__nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.media-viewer__prev {
+  left: 0;
+}
+
+.media-viewer__next {
+  right: 0;
+}
+
+.media-viewer__counter {
+  position: absolute;
+  bottom: 1rem;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+/* Спека 1d-1, п.4: реакции — «👍 3 ❤️ 1», своя выделена. */
+.reactions {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Ф23-3: реакции и просмотры поста канала — одной строкой. */
+.msg-counters {
+  margin: 0.25rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.msg-counters .reactions {
+  margin: 0;
+}
+
+.post-views {
+  color: var(--muted-fg);
+  white-space: nowrap;
+}
+
+/* Ф44-1b: инлайн-кнопки бота Telegram — ряды, кнопки ряда делят ширину поровну. */
+.msg-buttons {
+  margin: 0.35rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: min(100%, 420px);
+}
+
+.msg-buttons__row {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.msg-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.msg-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.msg-btn:disabled {
+  color: var(--muted-fg);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.msg-btn__text,
+.msg-btn__host {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg-btn__host {
+  font-size: 0.7rem;
+  color: var(--muted-fg);
+}
+
+.msg-buttons__line {
+  margin: 0;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.msg-buttons__line--live,
+.msg-buttons__line--warn {
+  color: var(--muted-fg);
+}
+
+.msg-buttons__line--alert {
+  font-weight: bold;
+}
+
+.msg-buttons__cut {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+/* Ф23-2: обёртка чипа и всплывашка со списком поставивших (наведение / долгое нажатие). */
+.reaction-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.reaction-who {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.25rem);
+  z-index: var(--z-popup);
+  margin: 0;
+  padding: 0.35rem 0.6rem;
+  list-style: none;
+  min-width: 6rem;
+  max-width: min(18rem, 80vw);
+  max-height: 12rem;
+  overflow-y: auto;
+  background: var(--surface, #fff);
+  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  font-size: 0.8rem;
+  font-weight: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  -webkit-touch-callout: none;
+}
+
+.reaction-who li {
+  padding: 0.05rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reaction-who__me {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.reaction-who__more {
+  color: var(--muted-fg);
+}
+
+.reaction-wrap .reaction {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.reaction.mine {
+  font-weight: bold;
+  color: var(--accent);
+}
+
+/* Ф10-3: чип-кнопка (поставить/снять), «ставится» — операция в пути, строка ошибки под сообщением. */
+.reaction--button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.reaction--button.mine {
+  border-color: var(--accent);
+}
+
+.reaction.pending {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.reaction-error {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+.reaction-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0.2rem 0;
+  padding: 0.15rem 0.25rem;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+/* Ф18-1: «ещё» — сетка всех реакций источника под быстрым рядом, шириной с него, с прокруткой. */
+.reaction-more {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  min-width: 1.8rem;
+  padding: 0 0.3rem;
+  font: inherit;
+  color: var(--muted-fg);
+  cursor: pointer;
+}
+
+.reaction-more:hover,
+.reaction-more:focus {
+  background: var(--border);
+}
+
+.reaction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2rem, 1fr));
+  flex-basis: 100%;
+  width: 0;
+  min-width: 100%;
+  max-height: 13rem;
+  overflow-y: auto;
+  padding-top: 0.15rem;
+  border-top: 1px solid var(--border);
+}
+
+.reaction-pick {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 0.1rem 0.25rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.reaction-pick:hover,
+.reaction-pick:focus {
+  background: var(--border);
+}
+
+/* Телефон: быстрый ряд из 10 и «+» — в одну строку. */
+@media (width < 600px) {
+  .reaction-pick {
+    padding: 0.1rem 0.15rem;
+  }
+}
+
+/* Свой эмодзи воркспейса Slack (`:name:`) — текстом на три клетки. */
+.reaction-pick--name {
+  grid-column: span 3;
+  overflow: hidden;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outbox-status {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.outbox-label--warn {
+  color: var(--warn);
+}
+
+.outbox-label--error {
+  color: var(--danger);
+}
+
+.outbox-label--ok {
+  color: var(--ok);
+}
+
+.outbox-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.outbox-action-error {
+  color: var(--danger);
+  margin-top: 0.2rem;
+}
+
+.composer {
+  display: flex;
+  flex-wrap: wrap; /* плашка ответа и строка ошибки — отдельной строкой, не сжимают поле ввода (приёмка 2e) */
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Ф27-1 C: подсказка `@` — над полем (на телефоне поле над клавиатурой, список — над полем). */
+.composer {
+  position: relative;
+}
+
+.mention-suggest {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 100%;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  z-index: var(--z-popup);
+}
+
+.mention-suggest-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+
+.mention-suggest-item--active {
+  background: var(--hover, rgba(127, 127, 127, 0.2));
+}
+
+.mention-suggest-handle {
+  color: var(--muted-fg);
+}
+
+.composer textarea {
+  flex: 1;
+  min-width: 12rem;
+  font: inherit;
+  resize: vertical;
+}
+
+.composer-error {
+  color: var(--danger);
+  width: 100%;
+}
+
+/* Ф10-4 C: прикреплённые файлы — строкой над полем, превью картинки `data:`, крестик до отправки. */
+.composer-drag {
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+}
+
+.composer-files {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.composer-file {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 16rem;
+  font-size: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.3rem;
+}
+
+.composer-file-error {
+  border-color: var(--danger);
+}
+
+.composer-file-preview {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.composer-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-file-state {
+  color: var(--muted-fg);
+  white-space: nowrap;
+}
+
+.composer-file-remove,
+.composer-attach {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+
+.search-form {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-width: 240px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1;
+}
+
+.search-results button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.4rem;
+  color: inherit;
+}
+
+.account-statuses {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.status-ok {
+  color: var(--ok);
+}
+
+.status-auth_required,
+.status-limited,
+.status-no_network {
+  color: var(--danger);
+}
+
+.status-stale {
+  color: var(--warn);
+}
+
+.staleness {
+  font-size: 0.8rem;
+}
+
+.staleness.stale {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* Ф8-1 A6: неудавшийся /sync — заметно, рядом с полосой давности. */
+.sync-error {
+  font-size: 0.8rem;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.queue-counter {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+.queue-counter:disabled {
+  cursor: default;
+}
+
+.queue-anchor {
+  position: relative;
+}
+
+.queue-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: var(--z-popup);
+  padding: 0.4rem;
+}
+
+.queue-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.queue-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px dotted var(--border);
+  padding: 0.3rem;
+  color: inherit;
+}
+
+.queue-item-channel {
+  display: block;
+  font-weight: 600;
+}
+
+.queue-item-origin {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--muted-fg);
+  margin-left: 0.3rem;
+}
+
+.queue-item-text {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Спека 2e: второй маленький значок непрочитанных тредов рядом с основным бейджем канала. */
+.badge-threads {
+  background: none;
+  color: var(--muted-fg);
+  font-size: 0.7rem;
+}
+
+/* Спека 2e, раздел «Семантика «Ответить»»: кнопка видна при наведении/фокусе строки, на тач-экране — всегда. */
+.reply-button {
+  opacity: 0;
+  margin-left: auto;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  color: var(--muted-fg);
+  transition: opacity 0.1s;
+}
+
+.message-row:hover .reply-button,
+.message-row:focus-within .reply-button,
+.reply-button:focus {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .reply-button {
+    opacity: 1;
+  }
+}
+
+/* Ф10-3: «Реакция» — как «Ответить»: видна при наведении/фокусе строки, на тач-экране — всегда. */
+.react-button {
+  opacity: 0;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  color: var(--muted-fg);
+  transition: opacity 0.1s;
+}
+
+.message-row:hover .react-button,
+.message-row:focus-within .react-button,
+.react-button:focus,
+.react-button[aria-expanded='true'] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .react-button {
+    opacity: 1;
+  }
+}
+
+/* Ф8-4 B4: «Удалить у себя» — как «Ответить»: видна при наведении/фокусе строки, на тач-экране — всегда. */
+.hide-button {
+  opacity: 0;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  color: var(--muted-fg);
+  transition: opacity 0.1s;
+}
+
+.message-row:hover .hide-button,
+.message-row:focus-within .hide-button,
+.hide-button:focus {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .hide-button {
+    opacity: 1;
+  }
+}
+
+/* Ф14-8: «Изменить» — как «Удалить у себя»; меню «Удалить» (у себя / у всех), правка на месте, состояние операции. */
+.edit-button {
+  opacity: 0;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  color: var(--muted-fg);
+  transition: opacity 0.1s;
+}
+
+.message-row:hover .edit-button,
+.message-row:focus-within .edit-button,
+.edit-button:focus,
+.delete-menu-button[aria-expanded='true'] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .edit-button {
+    opacity: 1;
+  }
+}
+
+.delete-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.1rem;
+  margin: 0.2rem 0;
+  padding: 0.15rem;
+  width: max-content;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.delete-menu-item {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.delete-menu-item:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.delete-menu-item:disabled {
+  color: var(--muted-fg);
+  cursor: default;
+}
+
+.message-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.message-edit__field {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  resize: vertical;
+}
+
+.message-edit__warning,
+.message-edit__error,
+.msg-op-error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+.message-edit__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.msg-op-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+.msg-op-line button {
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Ф8-4 П6: родитель треда, удалённый у себя в хабе. */
+.message-hidden {
+  font-style: italic;
+  color: var(--muted-fg);
+}
+
+/* Ф8-4 C4: «изменено» с прежними версиями — кликабельно; версии под сообщением, от старой к новой. */
+.edited-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline dotted;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.edit-history {
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0 0 0 0.5rem;
+  border-left: 2px solid var(--border);
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.edit-time {
+  display: block;
+  font-size: 0.7rem;
+}
+
+.thread-broadcast-tag {
+  font-size: 0.7rem;
+  background: none;
+  border: none;
+  color: var(--accent);
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* Спека 2e: цитата `reply_to_ext_id` над текстом («↪ <имя>: <начало текста>» / «↪ ответ на сообщение»). */
+.reply-quote {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  border-left: 2px solid var(--border);
+  padding-left: 0.4rem;
+  margin: 0 0 0.15rem;
+}
+
+.reply-quote.clickable {
+  cursor: pointer;
+}
+
+.message-purged {
+  font-style: italic;
+  color: var(--muted-fg);
+}
+
+/* Сводка треда под родителем («N ответов · последний ЧЧ:ММ»); Ф14-7 B1: «K новых» — меткой рядом. */
+.thread-summary-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.thread-summary-new {
+  border: none;
+  cursor: pointer;
+}
+
+.thread-summary {
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-align: left;
+}
+
+/* Плашка «Ответ <имя>: <текст>» в композере (Telegram-стиль ответа), с крестиком отмены. */
+.composer-reply-banner {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  font-size: 0.8rem;
+  background: var(--surface);
+  border-left: 2px solid var(--accent);
+  padding: 0.2rem 0.4rem;
+}
+
+.composer-reply-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-reply-cancel {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+
+.threads-button {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+.thread-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.thread-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: inherit;
+}
+
+.thread-messages {
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
+}
+
+.thread-parent {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0 0 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.thread-parent-missing {
+  color: var(--muted-fg);
+  font-style: italic;
+}
+
+/* --- Ф8-6: главная, черновики, группы «Реагирую / К сведению» ------------------------------------------- */
+
+.home-button {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+
+.home-error,
+.draft-card-error {
+  color: var(--danger);
+}
+
+.home-react-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 0.25rem;
+  color: inherit;
+}
+
+.home-react-row:hover {
+  background: var(--surface);
+}
+
+.home-react-address {
+  font-weight: 600;
+}
+
+.home-react-source,
+.home-react-time,
+.home-sent-time,
+.home-sent-via,
+.draft-card-author,
+.draft-card-time,
+.claude-run-time {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.draft-card-num,
+.outbox-num {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.draft-card-num {
+  font-size: 0.85rem;
+}
+
+.home-react-draft {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  font-size: 0.75rem;
+}
+
+.home-react-last {
+  flex-basis: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draft-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.draft-card--compact {
+  margin: 0;
+  border-radius: 0;
+  border-width: 1px 0 0;
+  background: var(--surface);
+}
+
+.draft-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.draft-card-address,
+.draft-card-label {
+  font-weight: 600;
+}
+
+.draft-card-target {
+  margin: 0.25rem 0;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draft-card-text,
+.claude-run-result {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0.25rem 0;
+}
+
+.draft-card-edit {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.draft-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Ф12-2 C: черновики по графику, флажки и подтверждение пачкой. */
+.draft-card--scheduled {
+  border-style: dashed;
+}
+
+.draft-card-paced,
+.draft-card-slot {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  font-size: 0.75rem;
+}
+
+/* Ф39 C: роль сессии-автора черновика */
+.draft-card-role {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10rem;
+}
+
+/* В строке черновика на главной роль не сжимает текст до нуля и сама не растягивается */
+.draft-row-role {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 8rem;
+}
+
+.draft-select {
+  margin: 0;
+  align-self: center;
+}
+
+/* Ф14-3 D: файлы черновика — видны сразу, без раскрытия. */
+.draft-select-files {
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+  align-self: center;
+}
+
+.draft-card-files {
+  margin: 0.25rem 0;
+}
+
+.draft-card-files-note {
+  margin: 0 0 0.25rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.draft-card-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.draft-card-file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.85rem;
+}
+
+.draft-card-file-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex: none;
+}
+
+.draft-card-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.draft-card-file-size {
+  color: var(--muted-fg);
+  flex: none;
+}
+
+.draft-card-file-open {
+  flex: none;
+}
+
+.draft-batch-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.draft-batch-result,
+.draft-batch-errors {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.draft-batch-errors {
+  color: var(--danger);
+  padding-left: 1rem;
+}
+
+.pinned-drafts {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.claude-run {
+  border-top: 1px dashed var(--border);
+  padding: 0.35rem 0;
+}
+
+.claude-run-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.claude-run-status {
+  font-size: 0.8rem;
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  border: 1px solid var(--border);
+}
+
+.run-status--ok {
+  color: var(--ok);
+}
+
+.run-status--failed {
+  color: var(--danger);
+}
+
+.run-status--paused,
+.run-status--retry,
+.run-status--waiting {
+  color: var(--warn);
+}
+
+.run-status--stopped {
+  color: var(--muted-fg);
+}
+
+.run-status--running {
+  color: var(--accent);
+}
+
+.claude-run-failure {
+  color: var(--danger);
+  margin: 0.25rem 0;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.home-sent-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  padding: 0.35rem 0;
+}
+
+.home-sent-text {
+  flex-basis: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  white-space: pre-wrap;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.home-sent-text--open {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+.attention-group-title {
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+
+.attention-group--info {
+  border-top: 1px solid var(--border);
+  margin-top: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.attention-group-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.message-row--focus,
+.flash {
+  outline: 2px solid var(--accent);
+  background: var(--surface);
+}
+
+/* Ф10-1 A: метка сочетания отправки рядом с главной кнопкой (на сенсорных экранах Ctrl нет — прячем). */
+.submit-hint {
+  color: var(--muted-fg);
+  font-size: 0.7rem;
+  align-self: center;
+  margin: 0 0.35rem;
+  white-space: nowrap;
+}
+
+@media (pointer: coarse) {
+  .submit-hint {
+    display: none;
+  }
+}
+
+/* Ф10-1 B: markdown ответов моделей (`ModelText.vue`) — компактно, в размер текущего текста. */
+.md {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.md > :first-child {
+  margin-top: 0;
+}
+
+.md > :last-child {
+  margin-bottom: 0;
+}
+
+.md p,
+.md ul,
+.md ol,
+.md blockquote,
+.md .md-code,
+.md .md-table {
+  margin: 0.3em 0;
+}
+
+.md ul,
+.md ol {
+  padding-left: 1.4em;
+}
+
+/* Маркеры явно: `.home-section ul`, `.work-events-list`, `.orch-feed` снимают их у всего вложенного. */
+.md ul {
+  list-style: disc;
+}
+
+.md ol {
+  list-style: decimal;
+}
+
+.md li > p {
+  margin: 0;
+}
+
+.md h1,
+.md h2,
+.md h3,
+.md h4,
+.md h5,
+.md h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0.5em 0 0.25em;
+}
+
+.md h1 {
+  font-size: 1.15em;
+}
+
+.md h2 {
+  font-size: 1.08em;
+}
+
+.md h3,
+.md h4,
+.md h5,
+.md h6 {
+  font-size: 1em;
+}
+
+.md code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+  background: var(--surface);
+  border-radius: 3px;
+  padding: 0 0.2em;
+}
+
+.md .md-code {
+  position: relative;
+}
+
+.md pre {
+  margin: 0;
+  padding: 0.4em 0.5em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.md pre code {
+  padding: 0;
+  background: none;
+  overflow-wrap: normal;
+}
+
+.md .md-copy {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  font-size: 0.75em;
+  padding: 0 0.35em;
+  opacity: 0.8;
+}
+
+.md .md-table {
+  overflow-x: auto;
+}
+
+.md table {
+  border-collapse: collapse;
+}
+
+.md th,
+.md td {
+  border: 1px solid var(--border);
+  padding: 0.15em 0.4em;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: normal;
+}
+
+.md th {
+  background: var(--surface);
+}
+
+.md blockquote {
+  padding-left: 0.6em;
+  border-left: 3px solid var(--border);
+  color: var(--muted-fg);
+}
+
+.md hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.5em 0;
+}
+
+.md a {
+  color: var(--accent);
+}
+
+.md--collapsed {
+  max-height: 320px;
+  overflow: hidden;
+}
+
+.md-toggle {
+  font-size: 0.8rem;
+}
+
+/* --- Ф9-2 (9b): запросы и ленты событий сессий (дорожек задач больше нет, Ф78-1) --------------------------------------- */
+/* Узкое окно (420 px): ни один блок не шире колонки — длинные команды и JSON переносятся или прокручиваются
+   внутри своего блока, страница горизонтально не прокручивается. */
+
+.work-request,
+.work-events {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.work-terminal-note,
+.work-request-truncated,
+.work-request-reason,
+.work-request-description {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.work-request {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.work-request {
+  border-color: var(--warn);
+}
+
+.work-request--stale {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.work-request-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.work-request-stale {
+  color: var(--danger);
+}
+
+.work-request-command,
+.work-request-json pre,
+.work-terminal-command {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--surface);
+  padding: 0.35rem 0.5rem;
+  margin: 0.25rem 0;
+  max-width: 100%;
+  max-height: 40vh;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.work-terminal-command {
+  display: block;
+}
+
+.work-question {
+  border: none;
+  padding: 0;
+  margin: 0.25rem 0 0.5rem;
+  min-width: 0;
+}
+
+.work-question legend {
+  overflow-wrap: anywhere;
+  padding: 0;
+  margin-bottom: 0.25rem;
+}
+
+.work-question-options,
+.work-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.25rem 0;
+}
+
+.work-question-option {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+.work-question-option--picked {
+  outline: 2px solid var(--accent);
+}
+
+.work-question-custom,
+.work-deny-comment {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.work-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.25rem 0;
+}
+
+.work-field input,
+.work-field textarea,
+.work-field select,
+.work-say-text {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.work-events-list {
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0.25rem 0.5rem;
+  max-height: 22rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.work-event {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 0.1rem 0;
+  font-size: 0.9rem;
+}
+
+.work-event--tool {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+}
+
+.work-event--done,
+.work-event--note {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+}
+
+.work-event--error {
+  color: var(--danger);
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+}
+
+.work-event--warn {
+  color: var(--warn);
+}
+
+.work-event--turn {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+  text-align: center;
+  border-top: 1px dashed var(--border);
+  margin-top: 0.25rem;
+}
+
+.work-task-failure,
+.work-error {
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+.work-notice {
+  color: var(--warn);
+}
+
+/* Ф10-5 B5: беседа трекера — строка вместо поля ввода. */
+.no-reply {
+  align-items: center;
+  color: var(--muted-fg);
+}
+
+/* Ф12-5 C1/C2: «Новое сообщение» — форма поверх всего; на телефоне — на весь экран. Ф14-2 D1: кнопка — в верхней
+   полосе (в строку) и на телефоне в «Беседах» (во всю ширину). */
+.new-message-button {
+  flex: none;
+}
+
+.phone-chats-head .new-message-button {
+  display: block;
+  width: calc(100% - 1rem);
+  margin: 0.25rem 0.5rem;
+  box-sizing: border-box;
+}
+
+.new-message-overlay {
+  position: fixed;
+  inset: 0;
+  bottom: var(--term-h, 0px);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  background: rgb(0 0 0 / 35%);
+}
+
+.new-message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(28rem, 95vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.new-message-form--phone {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+}
+
+.new-message-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.new-message-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--muted-fg);
+}
+
+.new-message-field input,
+.new-message-field select {
+  font-size: 1rem;
+}
+
+.new-message-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.new-message-hint {
+  margin: 0;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.new-message-error {
+  margin: 0;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+/* Ф14-2 D2: «Кому» — чипы выбранных, список «Беседы / Люди / Новый адресат». */
+.new-message-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.new-message-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+
+.new-message-chip-remove {
+  padding: 0 0.2rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.new-message-suggest {
+  display: flex;
+  flex-direction: column;
+  max-height: 40vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.new-message-suggest-title {
+  margin: 0.25rem 0.5rem 0;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+.new-message-suggest-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border: none;
+  background: none;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.new-message-suggest-item:hover,
+.new-message-suggest-item:focus-visible {
+  background: var(--surface);
+}
+
+.new-message-suggest-meta {
+  flex: none;
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+}
+
+.new-message-from-fixed {
+  color: var(--fg);
+  font-size: 1rem;
+}
+
+/* Ф12-5 C3: над полем ввода беседы-заготовки — «Новая беседа · кому: …». */
+.new-recipient-line {
+  margin: 0.25rem 0.75rem 0;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+/* Ф14-4 D1: голосовое в поле ввода — запись (красная точка, таймер) и прослушивание перед отправкой. */
+.voice-recorder {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.voice-recording,
+.voice-recorded {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.voice-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: #d33;
+}
+
+.voice-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.voice-audio {
+  height: 2rem;
+  max-width: 16rem;
+}
+
+.voice-error {
+  color: var(--danger, #c33);
+  font-size: 0.85rem;
+}
+
+/* Ф37-1 A4: «Без подтверждения ▾» в шапке беседы и чип с ролями. */
+.autosend-control {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  max-width: 100%;
+}
+
+.autosend-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 6px;
+  background: var(--bg, #fff);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.autosend-item {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.autosend-empty {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.autosend-chip {
+  font-size: 0.8rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--muted-bg, #eee);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* Ф80-2 п.4 (Н2): кнопки сообщения («Ответить», «Реакция», «Удалить…») невидимы до наведения, но занимали место и в узкой
+   колонке уходили на свои строки — между шапкой и текстом оставался пустой промежуток. Они сгруппированы в
+   `.message-actions`; на устройствах с наведением и в узкой ленте (< 30rem) группа лежит поверх правого верхнего угла строки
+   и места не занимает. */
+.message-actions {
+  display: contents;
+}
+
+.message-feed {
+  container-type: inline-size;
+}
+
+@container (max-width: 30rem) {
+  @media (hover: hover) {
+    .message-row {
+      position: relative;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 0.35rem;
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translateY(-45%);
+      padding: 0.1rem 0.25rem;
+      background: var(--bg);
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .message-row:hover .message-actions,
+    .message-row:focus-within .message-actions {
+      pointer-events: auto;
+    }
+
+    .message-actions .reply-button {
+      margin-left: 0;
+    }
+  }
+}

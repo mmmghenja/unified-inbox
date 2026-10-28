@@ -1,0 +1,35 @@
+# Юнит коннектора — %i это account_id. Спецификация: docs/architecture.md Копируется
+# scripts/hub-units-install.sh, но НЕ включается там (включает владелец сам, после `hub auth tg`, командой
+# `systemctl --user enable --now hub-connector@<account_id>.service` — скрипт установки её печатает).
+# Песочница — та же линейка свойств, что у hub-core.service.
+
+[Unit]
+Description=hub connector %i
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md).
+ConditionPathExists=%h/.config/hub/primary
+After=hub-core.service
+# Ядро может подняться позже: коннектор ждёт его внутри процесса, лимит рестартов systemd не мешает.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=%h/projects/hub-prod/.venv/bin/hub connector %i
+Restart=on-failure
+RestartSec=3
+# 78 = ConnectorBase.run() решил, что перезапуск по кругу бессмыслен (секрет отозван — 401 от core, либо
+# auth_required источника): рестарт ничего не починит, нужен новый `hub auth tg`/секрет коннектора.
+RestartPreventExitStatus=78
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/hub %h/.config/hub
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+
+# Живой запуск Slack 23.09 (архитектор): без [Install] `systemctl --user enable hub-connector@<id>` отказывал
+# («no installation config»), `--now` только запускал — после перезагрузки ноутбука коннекторы не поднимались.
+[Install]
+WantedBy=default.target

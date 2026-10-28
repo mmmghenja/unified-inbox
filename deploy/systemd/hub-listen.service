@@ -1,0 +1,40 @@
+# Служба записи помощника на интервью (Ф60-1, docs/architecture.md). Обычный
+# клиент API ядра (bearer ровно `listen`): без интервью только опрашивает ядро раз в 2 с, звук не трогает; идёт
+# интервью — эхоподавление PipeWire дочерним процессом (`pipewire -c`, конфиг во временном каталоге службы) и два
+# потока `ffmpeg -f pulse` кусками в ядро. Звук на диск не пишется.
+# Копируется scripts/hub-units-install.sh, но НЕ включается там: включает владелец после `hub listen setup`
+# командой `systemctl --user enable --now hub-listen.service`.
+# Песочница — как у hub-transcribe (без переменной CUDA). Звук — через сокеты `$XDG_RUNTIME_DIR/pulse/native` и
+# `$XDG_RUNTIME_DIR/pipewire-0`: `ProtectHome=read-only` оставляет /run/user только для чтения, подключение к
+# сокету на таком каталоге работает (проверено `systemd-run --user` с этими свойствами, отступления B спеки).
+# Каталог %h/.local/share/hub/listen создают `hub listen setup` и hub-units-install.sh (иначе ReadWritePaths
+# роняет юнит с 226/NAMESPACE).
+
+[Unit]
+Description=hub listen (запись звонка для помощника на интервью)
+After=hub-core.service pipewire.service pipewire-pulse.service
+
+[Service]
+Type=simple
+ExecStart=%h/projects/hub-prod/.venv/bin/hub listen run
+Restart=on-failure
+RestartSec=10
+# 78 = нет токена или он отозван: рестарт ничего не починит, нужен `hub listen setup`.
+RestartPreventExitStatus=78
+TimeoutStopSec=15
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/hub/listen
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+# Потолок памяти: звук службы — очередь не больше 30 кусков по ≤15 с на поток (~30 МБ) плюс pipewire и ffmpeg
+# дочерними процессами (они в той же группе юнита). Утечка — юнит убивается, а не ноутбук.
+MemoryMax=512M
+MemorySwapMax=0
+
+[Install]
+WantedBy=default.target

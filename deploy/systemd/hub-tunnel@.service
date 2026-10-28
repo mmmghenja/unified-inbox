@@ -1,0 +1,24 @@
+# Обратный SSH-туннель для доступа к хабу с телефона (Ф10-7, docs/architecture.md:
+# 127.0.0.1:8787 сервера VPN -> 127.0.0.1:8790 ноутбука (удалённый слушатель `hub core --remote-port 8790`).
+# Копируется scripts/hub-units-install.sh, но НЕ включается: включает владелец после настройки доступа (DNS,
+# обратный прокси на сервере): `systemctl --user enable --now hub-tunnel@<ssh-алиас сервера>`.
+
+[Unit]
+Description=Обратный SSH-туннель на %i: 127.0.0.1:8787 сервера -> удалённый слушатель хаба 127.0.0.1:8790
+StartLimitIntervalSec=0
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md):
+# туннель телефона ведёт туда, где ядро.
+ConditionPathExists=%h/.config/hub/primary
+
+[Service]
+# %i — ssh-алиас сервера (vpn-a, vpn-b). BatchMode: без вопросов; ExitOnForwardFailure: порт занят -> выйти
+# и повторить позже.
+ExecStart=/usr/bin/ssh -N -T \
+  -o BatchMode=yes -o ExitOnForwardFailure=yes \
+  -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -o ConnectTimeout=15 \
+  -R 127.0.0.1:8787:127.0.0.1:8790 %i
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

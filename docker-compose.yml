@@ -1,0 +1,30 @@
+# Демо на выдуманных данных:  docker compose up   ->   http://localhost:8787
+# Адрес входа с одноразовым кодом печатается в лог:  docker compose logs hub
+# Новый адрес (код живёт 60 секунд):  docker compose exec hub python -m demo.serve code
+# Другой порт на хосте:  HUB_DEMO_PORT=9000 docker compose up  (ядро проверяет заголовок Host, поэтому порт на хосте
+# и порт, который ядро считает своим, — одно и то же число).
+services:
+  hub:
+    build: .
+    image: unified-inbox-demo
+    hostname: demo
+    init: true
+    restart: unless-stopped
+    environment:
+      HUB_DEMO_PORT: "${HUB_DEMO_PORT:-8787}"
+    ports:
+      - "127.0.0.1:${HUB_DEMO_PORT:-8787}:8080" # только loopback хоста: демо не для сети
+    volumes:
+      - hub-data:/data
+      - hub-config:/config
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  hub-data:
+  hub-config:

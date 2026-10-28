@@ -1,0 +1,33 @@
+# Разовый прогон `hub backup` — дёргается таймером hub-backup.timer. Спецификация:
+# docs/architecture.md Recipient должен быть уже задан владельцем (`hub backup
+# --set-recipient`) — без него ручка `/admin/backup` отвечает 409, юнит завершится с ненулевым кодом,
+# `hub watch` это заметит (`backup_stale`, только если recipient настроен — пока recipient не задан,
+# отсутствие бэкапа не считается проблемой, см. watch.py).
+
+[Unit]
+Description=hub backup (шифрованный VACUUM INTO + age)
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md).
+ConditionPathExists=%h/.config/hub/primary
+After=hub-core.service
+# Persistent-таймер догоняет пропущенный запуск сразу после входа, когда core может ещё не слушать сокет:
+# три повтора с паузой, дальше — сдаться до следующих суток (409 «recipient не настроен» повторами не лечится).
+StartLimitIntervalSec=1h
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+ExecStart=%h/projects/hub-prod/.venv/bin/hub backup
+# Бэкап может ждать до 30 мин конца backfill коннектора (раздел E, docs/architecture.md) плюс сам
+# VACUUM+age — явно больше 45 мин, с запасом. Тот же порог — `_BACKUP_CLIENT_TIMEOUT_S` в cli.py.
+TimeoutStartSec=50min
+Restart=on-failure
+RestartSec=5min
+# Тонкий клиент сокета: на диск не пишет ничего (бэкап делает core), сеть не нужна.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+RestrictAddressFamilies=AF_UNIX

@@ -1,0 +1,1703 @@
+/* Ф10-6 B (`docs/architecture.md`): оболочка — вкладки проектов сверху, беседы на трёх ширинах,
+ * телефон. Режим раскладки выбирает `util/layout.ts` теми же запросами, что ниже в `@media`:
+ * `full` — (width >= 1280px), `phone` — (width < 600px), иначе `half`. Классы режима — на `.main-app--*`,
+ * `.chats-view--*`. Цвета — только переменные `theme.css` (тёмная тема — там же). */
+
+/* Приложение — ровно видимое окно браузера: `fixed` + `inset: 0`, а не `100dvh` — на Android (часть браузеров,
+   ярлык на главном экране, отрисовка под системной панелью) `100dvh` бывает выше видимого, и нижние вкладки уходили
+   под панель навигации. Клавиатура сжимает окно (`interactive-widget` в index.html) — поле ввода не прячется. */
+.app-root {
+  position: fixed;
+  inset: 0;
+}
+
+/* Колонка сетки не шире окна: иначе широкая верхняя полоса растягивает страницу вбок, появляется прокрутка
+   страницы целиком (и вертикальная — полоса прокрутки съедает высоту), а на телефоне страница «плавает». */
+.main-app {
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+.main-app--phone {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.shell-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* --- верхняя полоса: вкладки слева, компактный блок справа; не влезает в строку — блок справа уходит на вторую
+   строку (вкладкам остаётся не меньше 20rem, дальше они листаются вбок) ------------------------------------ */
+
+.shell-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: relative;
+  min-width: 0;
+}
+
+.project-tabs {
+  display: flex;
+  flex: 1 1 20rem;
+  gap: 0.15rem;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.project-tab {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
+  color: inherit;
+}
+
+.project-tab[aria-current='page'] {
+  background: var(--bg);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.project-tab--all {
+  color: var(--muted-fg);
+}
+
+.shell-status {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.shell-status .search-form input {
+  width: 11rem;
+}
+
+.shell-status .search-results,
+.shell-status .queue-panel {
+  left: auto;
+  right: 0;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--ok);
+  vertical-align: middle;
+}
+
+.staleness--ok {
+  color: var(--ok);
+}
+
+.queue-counters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.accounts-ok {
+  cursor: default;
+}
+
+/* --- беседы проекта ------------------------------------------------------------------------------------- */
+
+.chats-view {
+  display: grid;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+.chats-view--full {
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.chats-view--full.chats-view--thread {
+  grid-template-columns: 260px minmax(0, 1fr) 360px;
+}
+
+.chats-view--half {
+  grid-template-columns: clamp(220px, 30%, 300px) minmax(0, 1fr);
+}
+
+.chats-view--phone {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.chats-main {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Телефон: открыт тред — лента скрыта (смонтирована: черновик в поле и прокрутка сохраняются). */
+.chats-view--phone.chats-view--thread .chats-main {
+  display: none;
+}
+
+/* Панель треда (спека 2e): в `full` — колонка справа от ленты. */
+.column-thread {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* `half`: тред поверх правой части ленты. */
+.column-thread--overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, 75%);
+  z-index: 4;
+  box-shadow: -4px 0 16px rgb(0 0 0 / 25%);
+}
+
+.column-thread--phone {
+  border-left: none;
+}
+
+.feed-header {
+  position: relative;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* Название беседы не рвётся посреди слова: длинное обрезается многоточием, кнопки шапки уходят на вторую строку. */
+.feed-header:not(.feed-header--compact) {
+  flex-wrap: wrap;
+}
+
+.feed-header:not(.feed-header--compact) h2 {
+  flex: 0 1 auto;
+  min-width: min(12ch, 100%);
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-header:not(.feed-header--compact) .feed-actions {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
+.feed-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feed-header--compact h2 {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-actions--menu {
+  position: absolute;
+  top: 100%;
+  right: 0.5rem;
+  z-index: var(--z-popup);
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+}
+
+.feed-menu-button,
+.back-button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0.1rem 0.4rem;
+}
+
+/* Длинные команды, JSON и ссылки не расширяют страницу: переносятся или прокручиваются внутри блока. */
+.chats-view,
+.wait-list {
+  overflow-wrap: anywhere;
+}
+
+.chats-view pre,
+.wait-list pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* --- телефон ------------------------------------------------------------------------------------------- */
+
+.phone-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.phone-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  padding: 0.3rem 0.6rem;
+  /* `viewport-fit=cover`: если браузер рисует под строкой состояния, шапка отступает на её высоту (иначе 0). */
+  padding-top: calc(0.3rem + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* Основа 0: заголовок сжимается первым и не переносит кнопки на вторую строку (раздел виден по нижним вкладкам). */
+.phone-title {
+  flex: 1 1 0;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.phone-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.phone-body > * {
+  min-height: 0;
+  min-width: 0;
+}
+
+.phone-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.phone-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.2rem;
+  background: none;
+  border: none;
+  border-top: 2px solid transparent;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.phone-tab[aria-current='page'] {
+  color: var(--fg);
+  border-top-color: var(--accent);
+  font-weight: 600;
+}
+
+.phone-chats {
+  display: grid;
+  /* Без явной колонки ряд чипов проектов (nowrap) раздувал шапку шире экрана — чипы не листались. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.phone-chats > * {
+  min-width: 0;
+}
+
+.phone-chats-head .search-form {
+  padding: 0.3rem 0.5rem 0;
+}
+
+.phone-chats-head .search-form input {
+  width: 100%;
+}
+
+.project-chips {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.project-chip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: inherit;
+}
+
+.project-chip[aria-current='page'] {
+  background: var(--surface);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.project-chip--all {
+  color: var(--muted-fg);
+}
+
+.status-indicator--compact {
+  position: relative;
+}
+
+.status-dot-button {
+  background: none;
+  border: none;
+  padding: 0.3rem;
+}
+
+.status-dot-button.bad .status-dot {
+  background: var(--danger);
+}
+
+.status-indicator-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: var(--z-popup);
+  padding: 0.3rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.phone-top .queue-panel {
+  left: auto;
+  right: 0;
+  min-width: min(280px, 90vw);
+}
+
+/* «Ждёт» */
+.wait-list {
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.wait-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.wait-project {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.wait-task-title {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.wait-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  text-align: left;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: inherit;
+}
+
+.wait-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.wait-row-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.wait-row-time {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.wait-row-last {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted-fg);
+}
+
+/* Телефон: поле ввода не мельче 16 px — иначе мобильный браузер приближает страницу при фокусе. */
+@media (width < 600px) {
+  .composer textarea,
+  .search-form input {
+    font-size: 16px;
+  }
+
+  /* Скрепка, микрофон, поле и «Отправить» — одной строкой в ширину телефона. */
+  .composer {
+    padding-inline: 0.5rem;
+  }
+
+  .composer textarea {
+    min-width: 8rem;
+  }
+}
+
+/* Пол-экрана: блок справа уже — поиск короче. */
+@media (600px <= width < 1280px) {
+  .shell-status .search-form input {
+    width: 8rem;
+  }
+
+  .shell-status .account-statuses li:not(.accounts-ok) {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* --- Ф10-7: вход паролем с телефона и панель «Доступ и входы» ----------------------------------------------- */
+
+.password-login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(20rem, 90vw);
+  text-align: left;
+}
+
+.password-login-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* 16px — iOS не увеличивает страницу при фокусе поля. */
+.password-login-input {
+  font-size: 16px;
+  padding: 0.4rem 0.5rem;
+}
+
+.password-login-error,
+.access-error {
+  margin: 0;
+  color: var(--danger);
+}
+
+.access-open {
+  flex: 0 0 auto;
+}
+
+.access-panel {
+  position: fixed;
+  top: 2.75rem;
+  right: 0.5rem;
+  z-index: var(--z-panel);
+  width: min(28rem, calc(100vw - 1rem));
+  /* Ф80-1 B3: терминал внизу не закрывает низ панели — `--term-h` ставит `TerminalHost`. */
+  max-height: calc(100dvh - 3.5rem - var(--term-h, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 0.75rem 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: normal;
+  text-align: left;
+}
+
+/* Ф80-1 B1: шапка с «Закрыть» закреплена — видна при прокрутке длинной панели (на телефоне это единственный выход). */
+.access-panel-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  background: var(--bg);
+}
+
+.access-panel h2 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.access-panel p {
+  margin: 0.3rem 0;
+}
+
+.access-warn {
+  color: var(--warn);
+}
+
+.access-notice,
+.access-failures,
+.access-session-when {
+  color: var(--muted-fg);
+}
+
+.access-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.35rem 0;
+}
+
+.access-hosts,
+.access-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.35rem 0;
+}
+
+.access-hosts label,
+.access-password-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.access-hosts button {
+  align-self: flex-start;
+}
+
+.access-session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.access-session-what {
+  flex: 1 1 auto;
+}
+
+.access-session-when {
+  flex: 1 1 100%;
+  order: 2;
+}
+
+@media (width < 600px) {
+  .access-panel {
+    inset: 0;
+    width: auto;
+    max-height: none;
+    border-radius: 0;
+    border: none;
+  }
+
+  .access-panel input {
+    font-size: 16px;
+  }
+}
+
+/* Ф14-1 C1: проект беседы в шапке — выбор и причина раскладки серым; строка про сессии Claude. */
+.map-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.map-reason,
+.map-claude-line {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.chan-sub-mark {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  /* Ф39 C: слушающих может быть несколько — длинный список обрезается (целиком — в подсказке), а не
+     сжимает название беседы */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 16rem;
+}
+
+.map-claude-line--under {
+  margin: 0;
+  padding: 0.2rem 1rem;
+}
+
+.map-error,
+.move-error,
+.mapping-error {
+  color: var(--danger);
+}
+
+/* Ф14-1 C2: выбор бесед в списке и перенос пачкой. */
+.channel-select-start {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.25rem 0.5rem 0;
+}
+
+.channel-select-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.channel-select-bar p {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+.move-hint,
+.move-notice {
+  color: var(--muted-fg);
+}
+
+.move-notice {
+  margin: 0.25rem 0.5rem;
+}
+
+.channel-check {
+  flex: 0 0 auto;
+}
+
+.channel-button--selected {
+  background: var(--surface);
+}
+
+/* Ф14-1 C3: панель «Раскладка» (позиция и рамка — от `.access-panel`). */
+.mapping-open {
+  flex: 0 0 auto;
+}
+
+.mapping-panel h3 {
+  margin: 0.6rem 0 0.25rem;
+  font-size: 0.9rem;
+}
+
+.mapping-hint,
+.mapping-rule-count,
+.mapping-project-workdir,
+.mapping-empty {
+  color: var(--muted-fg);
+}
+
+.mapping-rule-list,
+.mapping-project-list,
+.mapping-examples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mapping-rule,
+.mapping-project {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.mapping-rule-what {
+  flex: 1 1 auto;
+}
+
+.mapping-confirm,
+.mapping-project p {
+  flex: 1 1 100%;
+}
+
+.mapping-examples li {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.mapping-add {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.5rem 0;
+}
+
+.mapping-add label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mapping-project-name,
+.mapping-new-name {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+/* Ф48-4: «Сообщения агентов пачкой, мин» у проекта — подпись и узкое поле одной строкой, на узком экране
+   поле переносится под подпись. */
+.mapping-project-agent-batch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.mapping-project-agent-batch-min {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  max-width: 100%;
+}
+
+/* Ф16-1: чип движка сессий в верхней полосе и панель переключателя (позиция и рамка — от `.access-panel`). */
+.engine-chip {
+  flex: 0 0 auto;
+}
+
+.engine-chip--off {
+  color: var(--muted-fg);
+}
+
+.engine-options,
+.engine-role-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.engine-option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.engine-choose {
+  flex: 0 0 auto;
+}
+
+.engine-note,
+.engine-notice {
+  flex: 1 1 100%;
+  color: var(--muted-fg);
+}
+
+.engine-error {
+  margin: 0.3rem 0;
+  color: var(--danger);
+}
+
+.engine-warn {
+  color: var(--warn);
+}
+
+.engine-reason {
+  flex: 1 1 100%;
+  font-size: 0.85rem;
+}
+
+.engine-block {
+  margin: 0.6rem 0;
+}
+
+.engine-block h2 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.engine-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.8rem;
+  align-items: center;
+  margin: 0.4rem 0;
+}
+
+/* Длинное имя модели («DeepSeek V4.1 Flash 1017 (…)») не раздвигает окно вбок: подпись — сжимаемый элемент
+   строки, список — не шире неё. */
+.engine-fields label {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.engine-fields select {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.engine-mode {
+  display: flex;
+  gap: 0.8rem;
+  margin: 0.3rem 0;
+}
+
+/* Телефон: верхняя полоса без чипа движка занимала ровно ширину экрана, поэтому чип компактнее, а заголовок
+   раздела может сжиматься — иначе полоса уезжает вбок (Ф10-6: «шапка не шире экрана»). */
+.phone-top .engine-chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding-inline: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.phone-top .phone-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* --- Ф20-4: меню «⋯» верхней полосы (`TopMenu.vue`) ---------------------------------------------------------- */
+
+.top-menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  min-width: 0;
+}
+
+.top-menu--phone {
+  flex: 0 1 auto;
+  margin-left: auto;
+}
+
+.top-menu-anchor {
+  position: relative;
+}
+
+.top-menu-button {
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem 0.55rem;
+}
+
+.top-menu-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: var(--z-topmenu);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: min(16rem, 92vw);
+  padding: 0.4rem;
+  box-sizing: border-box;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.top-menu-item {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.35rem 0.5rem;
+  color: inherit;
+}
+
+.top-menu-item:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.top-menu-popup .search-form input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.top-menu-popup .search-results {
+  left: 0;
+  right: 0;
+  min-width: 0;
+}
+
+.top-menu-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.6rem;
+  padding: 0.35rem 0.5rem 0.1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.project-tab--claude {
+  margin-left: 0.5rem;
+}
+
+/* Ф21-1b: люди — имя отправителя кнопкой, карточка человека, панель «Люди». */
+.message-meta .sender-name--link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.message-meta .sender-name--link:hover {
+  text-decoration: underline;
+}
+
+.person-overlay {
+  position: fixed;
+  inset: 0;
+  bottom: var(--term-h, 0px);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.person-modal {
+  position: relative;
+  width: min(36rem, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1.75rem 0.9rem 0.9rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
+.person-close {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.4rem;
+}
+
+.person-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.person-name {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.person-rename {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.person-rename input {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.person-section h3 {
+  margin: 0.9rem 0 0.3rem;
+  font-size: 0.9rem;
+}
+
+.person-section ul,
+.people-list,
+.people-suggestions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.person-section p {
+  margin: 0.25rem 0;
+}
+
+.person-names,
+.person-muted {
+  color: var(--muted-fg);
+}
+
+.person-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.person-source-what {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.person-badge {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 0.3em;
+  font-size: 0.7rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted-fg);
+}
+
+.person-fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.person-fact-text {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.person-fact-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.person-fact-form input {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.person-facts-caption {
+  font-size: 0.75rem;
+}
+
+.person-merge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.person-merge input,
+.people-controls input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.person-hit,
+.person-channel {
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
+.people-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+
+.people-scope {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.people-scope button[aria-pressed='true'] {
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.people-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4rem 0.3rem;
+  text-align: left;
+  white-space: normal;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+}
+
+.people-row:hover {
+  background: var(--surface);
+}
+
+.people-row-name {
+  font-weight: 600;
+}
+
+.people-row-badges {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.people-row-meta {
+  flex: 1 1 100%;
+  font-size: 0.8rem;
+}
+
+.people-suggestion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.people-suggestion-what {
+  flex: 1 1 100%;
+}
+
+.people-more {
+  margin: 0.5rem 0;
+}
+
+@media (width < 600px) {
+  .person-overlay {
+    padding: 0;
+  }
+
+  .person-modal {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+  }
+
+  .person-modal input,
+  .people-panel input {
+    font-size: 16px;
+  }
+}
+
+/* Ф34-1: стадии бесед — чип в списке и в шапке, выбор и заметка в шапке, фильтр и блок «Стадии» вкладки проекта. */
+.stage-chip {
+  flex: 0 0 auto;
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+}
+
+.stage-chip--header {
+  max-width: 10rem;
+}
+
+.stage-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.stage-form {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.stage-input {
+  min-width: 0;
+  width: 14rem;
+  max-width: 100%;
+}
+
+.stage-note {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.stage-filter {
+  padding: 0.25rem 0;
+}
+
+.stage-filter-select {
+  max-width: 100%;
+}
+
+.stages-block {
+  margin-bottom: 0.5rem;
+}
+
+.stages-list,
+.stages-channels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stages-channels {
+  padding-left: 1rem;
+}
+
+.stages-row,
+.stages-channel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.2rem 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.stages-note {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ф80-1 A3: всплывающие меню не выходят за экран — высота ограничена и прокручивается, ширина не больше окна. Точную
+   высоту и сдвиг от края при открытии считает `util/popup.ts` (`placePopup`); это запас до расчёта и без JS. */
+.top-menu-popup,
+.phone-session-menu,
+.feed-actions--menu,
+.board-col-popup,
+.queue-panel {
+  max-height: calc(100dvh - 4rem);
+  max-width: calc(100vw - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+/* Т16: меню беседы — селекты не шире меню, полная подпись режима — строкой ниже и с переносом. */
+.feed-actions--menu {
+  width: min(20rem, calc(100vw - 1rem));
+}
+
+.feed-actions--menu select {
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.attention-note {
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Т4: кнопка «Треды: N» не ломается на две строки. */
+.threads-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Меню проекта в левом списке доски: кнопки остаются в строке шапки (обёртка нужна только для общего механизма меню). */
+.board-group-popup {
+  display: contents;
+}
+
+/* Ф80-1 D1: действия с беседой (`ChannelView` с `actions-only`) внутри «⋯» столбца доски и окна беседы — стопкой. */
+.feed-header--actions-only {
+  display: block;
+  padding: 0;
+  border-bottom: none;
+}
+
+.column-feed--actions-only {
+  display: block;
+  min-width: 15rem;
+}
+
+.feed-header--actions-only .feed-actions--stack {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: flex-start;
+  min-width: 15rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.5rem;
+  white-space: normal;
+}
+
+.channel-modal-menu-anchor {
+  position: relative;
+}
+
+.channel-modal-menu {
+  right: 0;
+  left: auto;
+}
+
+/* Ф80-1 F1 (Т7): поиск в меню «⋯» — состояние поиска, название беседы и текст разделены, выдача в потоке меню (не накрывает
+   пункты). */
+.search-status {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  white-space: normal;
+}
+
+.search-status--error {
+  color: var(--danger);
+}
+
+.search-result-title {
+  display: block;
+}
+
+.search-result-text {
+  display: block;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-menu-popup .search-results {
+  position: static;
+  max-height: 40vh;
+  margin-top: 0.25rem;
+}
+
+/* Ф80-1 C3/Т13: у карточки разрешения комментарий к «Нет» — на своей строке, кнопки с ним не слипаются. */
+.work-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.work-request-actions .work-deny-comment {
+  flex: 1 1 100%;
+  order: 3;
+}
+
+/* Ф80-1 D2 (Д6, Т9): «Ждёт тебя» — не выше трети окна, видимая прокрутка внутри, карточки не режутся посередине
+   (прокрутка останавливается у начала строки), счётчики и время не ломаются на две строки. */
+.wait-bar-panel {
+  scrollbar-gutter: stable;
+  scroll-snap-type: y proximity;
+}
+
+.wait-bar-panel .home-react-row,
+.wait-bar-panel .draft-card,
+.wait-bar-panel .work-request {
+  scroll-snap-align: start;
+}
+
+.home-react-last {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
+
+.badge,
+.home-react-time,
+.draft-card-time {
+  white-space: nowrap;
+}
+
+/* Ф80-1 D3 (Д9, Д17): длинный номер беседы (13 цифр Slack/Mattermost) не съедает название в списке; в заголовках окон
+   номер отделён от названия. */
+.channel-button .chan-no {
+  /* Ф80-2 п.3: в узкой колонке номер ужимается первым (вес 100), название — приоритет; полный номер — в подсказке. */
+  flex: 0 100 auto;
+  min-width: 0;
+  max-width: 4.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.channel-button .channel-title {
+  flex: 1 0 auto;
+  min-width: 8ch;
+  max-width: 100%;
+}
+
+.channel-modal-title .chan-no,
+.board-col-title .chan-no {
+  margin-left: 0.4rem;
+}
+
+/* Ф80-1 F3 (Т11, Т12): крестик закрытия формы «Новое сообщение» на телефоне и цель «×» журнала запусков не меньше 32 px. */
+.new-message-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.new-message-close,
+.term-runs-close {
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.new-message-close {
+  background: none;
+  border: none;
+  color: inherit;
+}
+
+/* Ф80-1 D4 (Д10): лента беседы в столбце доски не схлопывается ниже ~200 px — при нехватке высоты прокручивается столбец
+   (окно беседы `ChannelModal` не затронуто: там высота задана окном). */
+.board-col-body--fill {
+  overflow-y: auto;
+}
+
+.board-col-body--fill > .board-channel {
+  flex: 1 0 auto;
+}
+
+.board-col-body--fill > .board-channel .message-feed {
+  flex: 1 1 200px;
+  min-height: 200px;
+}
+
+/* Ф80-1 C2: форма сессии окном — уже окна беседы. */
+.form-frame-modal {
+  width: min(36rem, 100%);
+}
+
+/* Ф80-1 D2 (Д6): ползунок прокрутки «Ждёт тебя» виден всегда (тонкий), а не только при прокрутке. */
+.wait-bar-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-fg) transparent;
+}
+
+/* Ф80-1 D3 (Д9/Т4): в сжатой шапке беседы длинный номер не вытесняет название. */
+.feed-header--compact .chan-no {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-header--compact h2 {
+  min-width: 6ch;
+}
+
+/* Ф80-1 C1: шапка окна сессии на телефоне не прилипает к правому краю. */
+.phone-session-head {
+  padding-right: 0.25rem;
+}
+
+/* Ф80-2 п.1 (Д6, Т9): строки «Ждёт тебя» режутся целыми строками, а не по высоте блока; время и счётчик не рвутся,
+   заголовок черновика и беседы переносится на две строки вместо «Неразобранное › …». */
+.wait-row-head {
+  flex-wrap: wrap;
+}
+
+.wait-row-time,
+.wait-row-head .badge,
+.wait-row-head .rule-mark {
+  flex: none;
+  white-space: nowrap;
+}
+
+.wait-row-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.wait-row-last {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.wait-item .draft-row {
+  flex-wrap: wrap;
+  white-space: normal;
+}
+
+.wait-item .draft-row-who {
+  flex: 1 1 8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.wait-item .draft-row-text {
+  flex: 1 1 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
+
+.wait-item .draft-card-slot,
+.wait-item .draft-card-paced,
+.wait-item .draft-card-num {
+  white-space: nowrap;
+}
+
+/* Ф80-2 п.2 (Д5): карточки разрешений в окне сессии не съедают ленту — до 12rem (не больше 35% окна), дальше прокрутка внутри. */
+.session-requests {
+  flex: none;
+  max-height: min(12rem, 35vh);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Ф80-2 п.7: встроенная форма сессии (телефон) — шапка с «Закрыть» над содержимым, не уезжает при прокрутке. */
+.form-frame-inline-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.25rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.form-frame-inline-close {
+  min-height: 32px;
+}
+
+/* Ф83-3: строка «Запасной» окна «Движок». */
+.engine-fallback {
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+}
+
+.engine-fallback-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.8rem;
+  align-items: center;
+}
+
+.engine-onfallback {
+  margin: 0 0 0.4rem;
+}
+
+.engine-hint {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+}
+
+/* Ф99-8: «Порядок проектов» */
+.project-order-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.project-order-name {
+  flex: 1;
+}

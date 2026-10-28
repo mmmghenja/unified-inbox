@@ -1,0 +1,3189 @@
+/* --- Ф10-6 A: главная-доска (`docs/architecture.md`, A2–A4) ------------------------------------- */
+/* Оркестратор во всю ширину сверху, ниже столбец на проект. Горизонтальная прокрутка — только у `.board`;
+   каждый столбец прокручивается сам. Длинные команды, JSON и ссылки в столбце 300 px (и на телефоне 360 px)
+   переносятся или прокручиваются внутри своего блока. */
+
+.home-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem 0;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+.home-view > .home-error,
+.home-view > .board-chips {
+  flex: none;
+  margin: 0;
+}
+
+.board {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(300px, 1fr);
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* «Неразобранное» — узкий последний столбец: дорожки сетки задаёт `HomeView` (`grid-template-columns` —
+   `repeat(N, minmax(300px, 1fr)) 240px`), на телефоне — нет. */
+
+.board-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-sizing: border-box;
+  padding: 0 0.5rem 1rem;
+}
+
+.board-column-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.board-column-name {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.board-column-name:hover {
+  text-decoration: underline;
+}
+
+.board-state {
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  color: var(--muted-fg);
+}
+
+.board-state--wait {
+  border-color: var(--danger);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.board-section {
+  margin-top: 0.6rem;
+  min-width: 0;
+}
+
+.board-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.board-section-title {
+  font-size: 0.9rem;
+  margin: 0 0 0.25rem;
+}
+
+.board-section-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.board-section-toggle[aria-expanded='false']::after {
+  content: ' ▾';
+  color: var(--muted-fg);
+}
+
+.board-section-toggle[aria-expanded='true']::after {
+  content: ' ▴';
+  color: var(--muted-fg);
+}
+
+.board-empty {
+  margin: 0;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.home-react-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.1rem;
+}
+
+.home-react-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.home-react-address {
+  overflow-wrap: anywhere;
+}
+
+.home-react-time {
+  margin-left: auto;
+}
+
+.home-sent-address {
+  overflow-wrap: anywhere;
+}
+
+/* --- Телефон (A4): столбец на всю ширину, свайп, чипы проектов сверху -------------------------------------- */
+
+.home-view--phone {
+  padding: 0.25rem 0.25rem 0;
+}
+
+.board--phone {
+  grid-auto-columns: 100%;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+.board--phone > .board-column {
+  scroll-snap-align: start;
+}
+
+.board-chips {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+}
+
+.board-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.board-chip[aria-current='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* --- Ф17-1b: карточка заявки сессии на вступление в группу или канал (`JoinCard.vue`) ---------------------- */
+
+.join-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+/* Решение принято (вступаю, заявка у админов, не вступили): одна тихая строка, не карточка. */
+.join-card--line {
+  border-color: var(--border);
+  padding: 0 0.75rem;
+  margin: 0.25rem 0;
+}
+
+.join-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.join-kind,
+.join-about,
+.join-reason {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.join-flag {
+  color: var(--warn);
+  font-size: 0.85rem;
+}
+
+.join-about {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0.25rem 0;
+}
+
+.join-reason {
+  margin: 0.25rem 0;
+}
+
+.join-outcome {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.join-outcome--failed,
+.join-error {
+  color: var(--danger);
+}
+
+.join-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* --- Ф44-1d: карточка «Нажать?» — сессия просит нажать кнопку бота (`PressCard.vue`) ------------------------- */
+
+.press-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.press-head,
+.press-quote,
+.press-note {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.press-quote {
+  color: var(--muted-fg);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.press-note {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.press-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* --- Ф54-1: карточка «нужен человек» (`HumanCard.vue`) ---------------------------------------------------------- */
+
+.human-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.human-meta,
+.human-site,
+.human-need,
+.human-doing,
+.human-url,
+.human-where,
+.human-errand,
+.human-returned,
+.human-decided {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.human-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+  font-size: 0.8rem;
+}
+
+.human-kind {
+  font-weight: 600;
+  border: 1px solid var(--warn);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+}
+
+.human-deadline {
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--muted-fg);
+}
+
+.human-need {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.human-doing,
+.human-where,
+.human-decided {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.human-url {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+  font-size: 0.85rem;
+}
+
+.human-url-text {
+  min-width: 0;
+  flex: 1 1 10rem;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.human-copy {
+  flex: none;
+  white-space: nowrap;
+}
+
+.human-shot {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: none;
+  cursor: zoom-in;
+}
+
+.human-shot img {
+  display: block;
+  max-width: 100%;
+  max-height: 8rem;
+}
+
+.human-shot-full {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.human-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.human-actions button {
+  white-space: nowrap;
+}
+
+/* --- Ф38-2: карточка заявки сессии на правило раскладки (`RuleRequestCard.vue`) ----------------------------- */
+
+.rule-request-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.rule-request-head,
+.rule-request-line,
+.rule-request-moved,
+.rule-request-meta,
+.rule-request-outcome {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.rule-request-moved,
+.rule-request-meta {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.rule-request-outcome {
+  font-size: 0.85rem;
+}
+
+.rule-request-error {
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+.rule-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* --- Ф17-2b: карточка просьбы сессии выйти из группы или канала (`LeaveCard.vue`) -------------------------- */
+
+.leave-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.leave-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.leave-title {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.leave-kind,
+.leave-reason {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.leave-reason,
+.leave-outcome {
+  margin: 0.25rem 0;
+}
+
+.leave-outcome {
+  font-size: 0.85rem;
+}
+
+.leave-error {
+  color: var(--danger);
+}
+
+.leave-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.leave-note {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  margin: 0.25rem 0.75rem;
+}
+
+.leave-failure {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+/* --- Ф62-6: группы WhatsApp — карточка просьбы сессии (`GroupOpCard.vue`), окна участников и ссылки, форма --- */
+
+.group-op-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.group-op-head {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.group-op-question {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.group-op-question--link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.group-op-reason,
+.group-op-outcome {
+  margin: 0.25rem 0;
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.group-op-result {
+  margin: 0.25rem 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.group-op-error {
+  color: var(--danger);
+}
+
+.group-op-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* Ф66-3: «у агента» на карточках групп WhatsApp и «выйти» (`ErrandBlock.vue`). */
+.errand-block {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.errand-block-line {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.errand-block-error {
+  color: var(--danger);
+  margin: 0.25rem 0;
+}
+
+/* Выбор участников (форма «Новая группа», окно «Участники…»). */
+.group-people {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.group-people-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.group-people-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow-wrap: anywhere;
+}
+
+.group-people-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.group-people-suggest {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin-top: 0.25rem;
+}
+
+.group-people-suggest button {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.group-title-count {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.group-modal-body {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.group-link-field {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ф66-3 B: на телефоне поле не мельче 16 px — иначе браузер приближает страницу при фокусе (окна «Участники…» и
+   «Ссылка-приглашение» стоят вне `.new-message-field`, где размер уже задан). */
+@media (width < 600px) {
+  .group-people-input,
+  .group-link-field {
+    font-size: 16px;
+  }
+}
+
+.group-roster {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.group-roster-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  padding: 0.15rem 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.group-roster-phone,
+.group-roster-tag {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+.group-mode-switch {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.group-mode-switch button[aria-pressed='true'] {
+  font-weight: 600;
+}
+
+/* --- Ф20-4: главная «доска, но тонкая» (`docs/architecture.md`) ------------------------------------ */
+
+/* Строка черновика — одна строка; ширину кнопок решает контейнер (столбец 270 px и телефон — значки). */
+.draft-row-wrap {
+  container-type: inline-size;
+  border-bottom: 1px solid var(--border);
+}
+
+.draft-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.25rem 0;
+  white-space: nowrap;
+}
+
+.draft-row .draft-card-num,
+.draft-row .draft-select,
+.draft-row .draft-select-files,
+.draft-row .draft-card-paced,
+.draft-row .draft-card-slot,
+.draft-row-actions {
+  flex: none;
+}
+
+.draft-row-who {
+  flex: 0 1 38%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.draft-row-text {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted-fg);
+}
+
+.draft-row--scheduled .draft-row-who {
+  flex: 1 1 0;
+}
+
+.draft-row-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.draft-btn-short {
+  display: none;
+}
+
+@container (max-width: 26rem) {
+  .draft-btn-full {
+    display: none;
+  }
+
+  .draft-btn-short {
+    display: inline;
+  }
+}
+
+.draft-more {
+  margin: 0.25rem 0;
+}
+
+.board-wait-card {
+  margin-top: 0.4rem;
+}
+
+.board-claude-line {
+  margin: 0.8rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.board-claude-link {
+  font-size: inherit;
+}
+
+/* Окно черновика: поверх страницы, полная карточка внутри. */
+.draft-modal-overlay {
+  position: fixed;
+  inset: 0;
+  bottom: var(--term-h, 0px);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.draft-modal {
+  position: relative;
+  width: min(40rem, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1.75rem 0.75rem 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.draft-modal-close {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.4rem;
+}
+
+/* Вкладка «Claude» (десктоп и телефон): оркестратор сверху, секции проектов ниже; прокручивается целиком. */
+.claude-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem 1rem;
+  overflow-y: auto;
+}
+
+.claude-view > * {
+  flex: none;
+}
+
+/* --- Ф34-2: напоминания по беседам (`ReminderCard.vue`, `ChannelReminders.vue`) ------------------------------ */
+
+.reminder-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.reminder-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.reminder-meta,
+.reminder-note {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.reminder-note {
+  margin: 0.25rem 0;
+}
+
+.reminder-actions,
+.reminder-snooze-menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.reminder-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.reminder-badge {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.channel-reminders {
+  box-sizing: border-box;
+  max-width: 100%;
+  border-bottom: 1px solid var(--border, currentColor);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.channel-reminders-list {
+  list-style: none;
+  margin: 0 0 0.4rem;
+  padding: 0;
+}
+
+.channel-reminder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.channel-reminder-who,
+.channel-reminder-note,
+.channel-reminders-empty {
+  color: var(--muted-fg);
+}
+
+.channel-reminder-actions,
+.channel-reminder-move {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.channel-reminder-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.5rem;
+}
+
+.reminder-note-input {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+/* Ф89-1: повторяемые напоминания и панель «⋯ → Напоминания» (`RemindersPanel.vue`). */
+.reminder-missed {
+  white-space: nowrap;
+}
+
+.reminder-every,
+.channel-reminder-every,
+.channel-reminder-last {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.reminder-every-select {
+  max-width: 100%;
+}
+
+.reminder-every-hours {
+  width: 4rem;
+}
+
+.reminders-group-title {
+  margin: 0.75rem 0 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.reminders-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.reminders-channel {
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.reminders-meta {
+  color: var(--muted-fg);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.reminders-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted-fg);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.reminders-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* --- Ф35-3: агенты хаба на вкладке «Claude» (`AgentsBlock`, `AgentDialog`, `AgentTraffic`) -------------------- */
+
+.agents-block,
+.agent-traffic {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem 0.6rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.agents-title {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+
+.agents-empty {
+  margin: 0.25rem 0;
+  color: var(--muted-fg);
+  font-size: 0.9rem;
+}
+
+.agents-group-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0.2rem;
+  font-size: 0.9rem;
+}
+
+.agents-list,
+.traffic-list,
+.agent-dialog-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.agent-item {
+  min-width: 0;
+  border-top: 1px solid var(--border);
+}
+
+.agent-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0.35rem 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.agent-name {
+  font-weight: 600;
+}
+
+.agent-meta {
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.agent-dialog {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.agent-dialog-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 20rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.agent-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  max-width: 85%;
+  box-sizing: border-box;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.agent-msg-text,
+.traffic-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.agent-msg-meta {
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+}
+
+/* 23.10: строка хода агента под репликой владельца (план, шаги, время). */
+.talk-progress {
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0.4rem;
+  border-left: 2px solid var(--border);
+  color: var(--muted-fg);
+  font: inherit;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* 23.10: файлы реплики разговора с агентом. */
+.talk-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.talk-file {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.talk-file-img {
+  display: block;
+  max-width: min(240px, 100%);
+  max-height: 180px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.talk-file-gone {
+  color: var(--muted-fg);
+}
+
+.agent-dialog-input.owner-text--drop {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.agent-msg--me {
+  align-self: flex-end;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.agent-msg--agent {
+  align-self: flex-start;
+  border: 1px dashed var(--border);
+}
+
+.agent-msg--note {
+  align-self: flex-start;
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+}
+
+.agent-dialog-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  min-width: 0;
+}
+
+.agent-dialog-text {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.agent-hint {
+  margin: 0;
+  color: var(--muted-fg);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.agent-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.traffic-row {
+  min-width: 0;
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.traffic-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.6rem;
+  overflow-wrap: anywhere;
+}
+
+.traffic-who {
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.traffic-warn {
+  color: var(--warn);
+}
+
+.traffic-text {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 599px) {
+  .agent-msg {
+    max-width: 100%;
+  }
+}
+
+/* Ф37-1 C1/C2: подпись «агент: <роль>» и «без подтверждения · <роль>». */
+.auto-role-mark,
+.rule-mark,
+.home-sent-auto {
+  color: var(--muted-fg);
+  font-size: 0.85rem;
+}
+
+/* Номер черновика / сообщения в очереди — неброско, как подпись; текст выделяется и копируется. */
+.draft-card-num--quiet,
+.outbox-num--quiet {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+  user-select: text;
+}
+
+/* Поле «№»: поиск по номеру над списком черновиков и очереди. */
+.number-search {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.number-search-input {
+  width: 9rem;
+  max-width: 100%;
+  font-size: 0.8rem;
+}
+
+.queue-item .draft-card-num {
+  margin-right: 0.35rem;
+}
+
+/* Метка источника беседы: значок в списке («MM», «SL»…) и полное слово в шапке. Не сжимается и не съедает название
+   (оно обрезается многоточием) и счётчик. */
+.source-badge,
+.source-label {
+  flex: none;
+  color: var(--muted-fg);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.25rem;
+  white-space: nowrap;
+}
+
+.source-label {
+  font-size: 0.75rem;
+}
+
+/* Ф70-1: канал спит вместе с днём проекта — серая пометка в шапке беседы и у аккаунта в «Раскладке». */
+.channel-sleep-mark {
+  flex: none;
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* Ф41-1: срок кэша и контекст сессии — мелкой строкой */
+.cache-line {
+  margin: 0;
+  font-size: 0.8em;
+  color: var(--muted-fg);
+  overflow-wrap: anywhere;
+}
+
+.cache-line--warn {
+  color: var(--warn);
+}
+
+/* Ф41-2б-2: блок «Сессии проекта» на вкладке «Claude» (десктоп и телефон). Всё переносится строками: ничего не
+   шире колонки, длинные названия и причины ломаются по словам. */
+.session-block,
+.session-list,
+.session-row,
+.session-window {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.session-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.session-row {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  margin: 0.3rem 0;
+}
+
+.session-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  align-items: baseline;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.session-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.session-role,
+.session-engine,
+.session-state {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.session-state--running {
+  color: var(--ok);
+}
+
+.session-pending {
+  font-size: 0.8rem;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.session-wait {
+  margin: 0.15rem 0;
+  font-size: 0.8rem;
+  color: var(--warn);
+  overflow-wrap: anywhere;
+}
+
+.session-says {
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--muted-fg);
+}
+
+.session-say {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.session-say-reason {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  opacity: 0.85;
+}
+
+.session-say-mark {
+  font-style: italic;
+}
+
+.session-new .work-field select,
+.session-new .work-field input {
+  max-width: 100%;
+}
+
+/* Ф41-3а: порог контекста сессии — жёлтый выше 70 % предела, красный выше 90 % */
+.cache-ctx--warn {
+  color: var(--warn);
+}
+
+.cache-ctx--danger {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* Ф41-3а: шаги сессии — строка по `brief`, подробности (diff, вывод, вход инструмента) по клику. Блоки подробностей
+   с ограниченной высотой и своей прокруткой по обеим осям: страница не раздвигается (в том числе на 390 px). */
+.step-toggle {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  max-width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.step-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.step-mark {
+  color: var(--muted-fg);
+}
+
+.step-detail {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0.2rem 0;
+}
+
+.step-note {
+  margin: 0.15rem 0;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.step-note--error {
+  color: var(--danger);
+}
+
+.diff-pre,
+.step-pre {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 400px;
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  overflow: auto;
+  white-space: pre;
+  overflow-wrap: normal;
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.diff-line--add {
+  color: var(--ok);
+}
+
+.diff-line--del {
+  color: var(--danger);
+}
+
+.diff-line--hunk,
+.diff-line--meta {
+  color: var(--muted-fg);
+}
+
+.diff-cut {
+  margin: 0.15rem 0;
+  font-size: 0.78rem;
+  color: var(--muted-fg);
+}
+
+/* Ф41-3б: строка «пишет…» в конце ленты окна сессии */
+.session-live-mark {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted-fg);
+}
+
+.session-live-cut {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+}
+
+.session-live-think {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Ф41-4: подписка сессии — блок в форме и строка в окне; всё переносится, страницу на 390 px не раздвигает */
+.session-sub,
+.session-sub-edit,
+.session-sub-fields {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.session-sub-fields {
+  margin: 0.3rem 0;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.session-sub-fields .work-field select,
+.session-sub-fields .work-field input[type='text'] {
+  max-width: 100%;
+}
+
+.session-sub-line,
+.session-sub-stale,
+.session-sub-autosend,
+.session-sub-heavy,
+.session-sub-note {
+  margin: 0.15rem 0;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.session-sub-stale,
+.session-sub-heavy,
+.session-sub-silent {
+  color: var(--warn);
+}
+
+.session-sub-ok {
+  color: var(--ok);
+}
+
+.session-sub-autosend,
+.session-sub-note {
+  color: var(--muted-fg);
+}
+
+/* Ф41-3в: чипы приложенных файлов; на узком экране переносятся, страницу не раздвигают */
+.session-window--drop {
+  outline: 2px dashed var(--border);
+}
+
+.session-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.session-file {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.4rem;
+  align-items: baseline;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.session-file-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.session-file-size,
+.session-file-note {
+  color: var(--muted-fg);
+}
+
+.session-file-error {
+  flex-basis: 100%;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+.session-file-note {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+}
+
+.session-file-remove {
+  background: none;
+  border: none;
+  padding: 0 0.2rem;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Окно сессии: пачка шагов инструментов одной строкой; раскрытые шаги — с отступом. */
+.work-event--nested {
+  padding-left: 1rem;
+}
+
+.tools-errors {
+  color: var(--danger, #b3261e);
+}
+
+/* Ф48-2: прерванная реплика, подпись «ждёт конца сжатия», окно «Сжатие…» */
+.session-say-interrupted,
+.session-say-compact {
+  margin-left: 0.4rem;
+  font-style: italic;
+  color: var(--warn-fg, #b45309);
+}
+
+.session-say-resend,
+.session-say-drop {
+  margin-left: 0.4rem;
+  min-height: 2rem;
+}
+
+.session-compact-modal {
+  max-width: min(26rem, 94vw);
+  height: auto;
+  max-height: min(85vh, 100%);
+}
+
+.session-compact-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+}
+
+.session-compact-auto {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.session-compact-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-fg);
+}
+
+/* Ф99-7.2: «⋯ → Разрешения…» — список «Всегда в этой сессии» с «×». */
+.session-always-modal {
+  max-width: min(32rem, 94vw);
+  height: auto;
+  max-height: min(85vh, 100%);
+}
+
+.session-always-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+
+.session-always-hint,
+.session-always-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-fg);
+}
+
+.session-always-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.session-always-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.session-always-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Окно сессии (12.10.2026): разрешение свёрнуто до двух строк — «развернуть» / «открыть окном». */
+.work-request-command.work-request-preview {
+  max-height: calc(2.7em + 0.35rem);
+  padding-bottom: 0;
+  line-height: 1.35;
+  overflow: hidden;
+}
+
+.work-request-views {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.15rem 0;
+  font-size: 0.8rem;
+}
+
+.request-text-command,
+.request-text-json {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+/* «Ждёт тебя» (12.10.2026): свёрнутое разрешение одной строкой — заголовок, начало команды, ссылки, кнопки. */
+.work-request--line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.6rem;
+}
+
+.work-request--line > * {
+  margin: 0;
+}
+
+.work-request--line .work-error {
+  flex-basis: 100%;
+}
+
+.work-request-command.work-request-preview--one {
+  flex: 1 1 10rem;
+  min-width: 0;
+  max-height: none;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.draft-modal-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 2rem 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+/* --- Ф56-3: окно «Агент» — очередь владельца (`AgentQueue.vue`, `OwnerCard.vue`) ------------------------------------- */
+
+.agent-queue {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+}
+
+.agent-queue-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.agent-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.agent-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--muted-fg);
+}
+
+.agent-state--on .agent-dot {
+  background: #2e9d4f;
+}
+
+.agent-count {
+  font-weight: 600;
+}
+
+.agent-filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.agent-filter {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  font-size: 0.8rem;
+}
+
+.agent-filter[aria-pressed='true'] {
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.agent-notice {
+  margin: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--muted-fg);
+}
+
+.agent-queue-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 0.6rem 0.6rem;
+}
+
+.owner-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.owner-card--urgent {
+  border-color: var(--warn);
+}
+
+/* Владелец 15.10.2026: ушедшая из очереди карточка, с которой он работает, — бледнее, с плашкой «Есть новее». */
+.owner-card--gone {
+  border-style: dashed;
+}
+
+.owner-card--gone .owner-path,
+.owner-card--gone .owner-meta,
+.owner-card--gone .owner-brief {
+  opacity: 0.7;
+}
+
+.owner-gone {
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.owner-gone-text {
+  margin: 0 0 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.owner-gone-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.owner-card--flash {
+  outline: 2px solid var(--accent, var(--warn));
+  outline-offset: 2px;
+}
+
+.owner-path,
+.owner-meta,
+.owner-passed,
+.owner-errand,
+.owner-returned,
+.owner-brief,
+.owner-pair {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.owner-path {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.owner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+  font-size: 0.8rem;
+}
+
+.owner-kind {
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+}
+
+.owner-until--urgent {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.owner-mark {
+  white-space: nowrap;
+  color: var(--muted-fg);
+}
+
+.owner-mark--agent {
+  color: #2e9d4f;
+}
+
+.owner-passed,
+.owner-errand,
+.owner-returned,
+.human-errand,
+.human-returned {
+  font-size: 0.85rem;
+}
+
+.owner-brief {
+  white-space: pre-wrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.owner-key {
+  color: var(--muted-fg);
+}
+
+.owner-input {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  margin: 0.25rem 0;
+}
+
+.owner-draft-edit,
+.owner-text-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.owner-actions,
+.owner-text-actions,
+.owner-agent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0.4rem 0 0;
+}
+
+.owner-agent-label {
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+}
+
+.owner-full-modal {
+  max-width: min(46rem, 96vw);
+}
+
+/* Заметка в меню сессии. */
+.session-menu-note {
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 20rem;
+}
+
+/* Ф58-1: окно «Написать…» (список адресатов слева, разговор справа; на телефоне — на весь экран, по одному). */
+.write-modal {
+  width: min(64rem, 100%);
+}
+
+.write-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.write-list {
+  flex: none;
+  width: 16rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 0.4rem;
+  box-sizing: border-box;
+}
+
+.write-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0.4rem;
+}
+
+.write-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.write-row {
+  white-space: nowrap;
+  width: 100%;
+}
+
+.write-row--active {
+  background: var(--hover-bg, rgba(127, 127, 127, 0.18));
+}
+
+.write-row--offline {
+  opacity: 0.65;
+}
+
+.write-row .board-row-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Двойной класс: `board-view.css` подключается позже и с равным весом перебил бы поля и размеры окна. */
+/* Режим сессии хаба в списке «Написать…»: «авто» заметным чипом, «ручной» — серой подписью. */
+.write-mode-auto {
+  flex: none;
+  padding: 0 0.4rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.channel-modal-overlay.write-overlay--phone {
+  padding: 0;
+  align-items: stretch;
+}
+
+.channel-modal.write-modal--phone {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.write-modal--phone .write-list {
+  width: 100%;
+  border-right: 0;
+}
+
+.owner-talk {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+}
+
+.owner-talk-branches {
+  flex: none;
+  width: 11rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 0.25rem;
+  box-sizing: border-box;
+}
+
+.write-modal--phone .owner-talk-branches {
+  width: 100%;
+  border-right: 0;
+}
+
+.owner-branch {
+  white-space: nowrap;
+  width: 100%;
+}
+
+.owner-branch .board-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.owner-branch--active {
+  background: var(--hover-bg, rgba(127, 127, 127, 0.18));
+}
+
+.owner-talk-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.owner-talk-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.owner-talk-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.owner-talk-feed {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* В окне «Написать…» лента разговора занимает всю высоту, поле ввода — внизу (у диалога агента на доске
+   лента ограничена 20rem). */
+.write-pane {
+  padding: 0 0.5rem 0.5rem;
+  box-sizing: border-box;
+}
+
+.write-pane > .agent-dialog {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.write-pane .agent-dialog-feed {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+.owner-talk-ref,
+.owner-discuss {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  overflow-wrap: anywhere;
+}
+
+.owner-discuss .link-button + .link-button {
+  margin-left: 0.75rem;
+}
+
+.owner-modal-answer {
+  flex: none;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--border);
+  overflow-y: auto;
+  max-height: 45%;
+}
+
+.agent-write,
+.agent-terminal,
+.phone-sessions-write {
+  white-space: nowrap;
+}
+
+/* Ф58-1: видимая кнопка «Написать…» в верхней полосе; на узком окне — один значок «✎». */
+.top-write-button,
+.top-term-button,
+.top-wait-button {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Ф90-2: «Ждёт тебя · N» — кнопка-счётчик верхней полосы главной. */
+.top-wait-button {
+  font-weight: 600;
+}
+
+.top-wait-button--none {
+  color: var(--muted-fg);
+  font-weight: 400;
+}
+
+@media (max-width: 1279px) {
+  .top-write-label,
+  .top-term-label {
+    display: none;
+  }
+}
+
+/* --- Ф60-1C: панель помощника на интервью в окне сессии (только ноутбук) ----------------------------------- */
+.interview-panel {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 0.35rem 0.5rem;
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+.interview-head {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+}
+.interview-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 11rem; /* ~8 строк, остальное листается */
+  overflow-y: auto;
+}
+.interview-line {
+  overflow-wrap: anywhere;
+}
+.interview-line--them {
+  color: var(--accent);
+}
+.interview-line--me {
+  color: var(--ok);
+}
+.interview-line-time {
+  color: var(--muted-fg);
+  margin-right: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.interview-line-who {
+  font-weight: 600;
+  margin-right: 0.35rem;
+}
+.interview-empty,
+.interview-reason,
+.interview-wait,
+.interview-note {
+  color: var(--muted-fg);
+}
+.interview-warn {
+  color: var(--warn);
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+.interview-reason,
+.interview-wait {
+  margin: 0.25rem 0 0;
+}
+.interview-listener {
+  color: var(--danger);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+.interview-command {
+  overflow-wrap: anywhere;
+}
+.interview-actions {
+  margin-top: 0.35rem;
+  align-items: center;
+}
+.interview-error {
+  margin: 0.25rem 0 0;
+}
+
+/* Ф63-2: пометка страховки у черновика и нажатия бота */
+.draft-card-guard,
+.press-guard {
+  color: var(--danger, #c0392b);
+  font-size: 0.8rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.press-guard {
+  margin: 0.25rem 0;
+}
+
+/* Ф64-1: рабочий день проекта — метка, кнопка, тихая строка «день закрыт · ждёт N». */
+.day-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.day-closed-label,
+.day-closed-line {
+  color: #888;
+  font-size: 0.85em;
+}
+
+.day-closed-line {
+  margin: 0.15rem 0.5rem;
+}
+
+.day-error {
+  color: #c0392b;
+  font-size: 0.85em;
+}
+
+.channel-day,
+.board-day {
+  display: flex;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Ф65-1: возврат агентом, вопрос агента в карточке, итоги агента, блок «Мой агент берёт сам» */
+.errand-returned {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.errand-returned-head {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.errand-returned-detail {
+  margin: 0.2rem 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--muted-fg);
+}
+
+.errand-returned-detail--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.owner-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.3rem 0;
+}
+
+/* правки 15.10: поле и обычная кнопка «Поручить агенту» рядом, кнопка не во всю ширину */
+.errand-returned-say {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.3rem;
+  margin: 0.3rem 0;
+}
+
+.errand-returned-say textarea {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.errand-returned-say button {
+  flex: 0 0 auto;
+}
+
+.owner-ask-text {
+  margin: 0;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.owner-results {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.owner-results-list {
+  margin: 0.3rem 0;
+  padding-left: 1rem;
+}
+
+.owner-result-meta {
+  color: var(--muted-fg);
+  margin-right: 0.4rem;
+}
+
+.owner-result-text {
+  overflow-wrap: anywhere;
+}
+
+/* Ф66-1: таблица «Кто отвечает на карточки» — рамка на проект, строка на группу, три кнопки-переключателя. */
+.route-table {
+  margin: 0 0 0.9rem;
+}
+
+.route-project {
+  border: 1px solid var(--border, #ccc);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  margin: 0.5rem 0;
+}
+
+.route-project-title {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.route-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.6rem;
+  align-items: center;
+  padding: 0.2rem 0;
+}
+
+.route-row--all {
+  border-bottom: 1px solid var(--border, #ddd);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.route-name {
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+.route-hint {
+  display: block;
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+}
+
+.route-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.route-btn {
+  min-width: 4.5rem;
+  min-height: 2rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.route-btn--on {
+  font-weight: 700;
+  background: var(--accent, #1a73e8);
+  color: var(--accent-fg, #fff);
+}
+
+.route-btn--none {
+  visibility: hidden;
+}
+
+/* Ф69-1: стоп PeerFlood у аккаунта и причина в очереди. */
+.account-stop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.5rem;
+}
+
+.account-stop-resume {
+  white-space: nowrap;
+}
+
+.outbox-held {
+  color: var(--warn);
+}
+
+/* Ф66-5: метка «свежий тред внутри» в строке беседы (чужие ответы в треде, не непрочитанное). */
+.badge-fresh-thread {
+  background: none;
+  color: var(--muted-fg);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+/* Тихий номер беседы / напоминания (#id): серый, мелкий, не сжимается (13-значные номера не раздувают строку). */
+.chan-no,
+.reminder-no {
+  flex: none;
+  color: var(--muted-fg);
+  font-size: 0.7rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.channel-no-result {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  margin: 0.2rem 0;
+  font-size: 0.8rem;
+}
+
+.channel-no-result .channel-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ф75-1: строка «Модель: … ▾» над разговором «Мой агент» и её форма. */
+.agent-model {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.agent-model-line {
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.agent-model-saved,
+.agent-model-hint {
+  color: var(--muted-fg);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.agent-model-form {
+  flex-basis: 100%;
+  min-width: 0;
+}
+
+.agent-model-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Ф77-1: чип машины роли — короткий, серый, как чип движка; длинное имя обрезается многоточием. */
+.machine-chip {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+}
+
+/* Ф77-1: окно «⋯ → Машины». */
+.machines-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0;
+}
+
+.machines-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.machines-name {
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.machines-name-edit {
+  min-width: 0;
+  max-width: 12rem;
+}
+
+.machines-meta {
+  color: var(--muted-fg);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.machines-version--diff {
+  background: #fff3b0;
+  color: #5c4a00;
+  border-radius: 3px;
+  padding: 0 0.25rem;
+}
+
+.machines-offline {
+  color: var(--danger);
+  font-size: 0.85em;
+}
+
+.machines-error {
+  flex-basis: 100%;
+  color: var(--danger);
+  font-size: 0.85em;
+  margin: 0;
+}
+
+.work-terminal-machine {
+  margin: 0 0 0.25rem;
+  font-size: 0.85em;
+  color: var(--muted-fg);
+}
+
+/* Ф82-1: окно «⋯ → Мои данные». */
+.my-data-meta {
+  color: var(--muted-fg);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.my-data-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.4rem 0;
+}
+
+.my-data-chip {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.my-data-chip--on {
+  border-color: var(--accent, #3b6fd8);
+  font-weight: 600;
+}
+
+.my-data-count,
+.my-data-broken {
+  margin-left: 0.3em;
+}
+
+.my-data-count {
+  color: var(--muted-fg);
+  font-weight: normal;
+}
+
+.my-data-broken {
+  color: var(--danger);
+}
+
+.my-data-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0.4rem 0 0;
+}
+
+.my-data-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.my-data-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.5rem;
+  min-width: 0;
+}
+
+.my-data-label {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.my-data-from-common {
+  padding: 0 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-fg);
+  font-size: 0.75rem;
+}
+
+.my-data-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.my-data-hidden {
+  color: var(--muted-fg);
+}
+
+.my-data-shown {
+  font-family: var(--mono, monospace);
+  white-space: pre-wrap;
+}
+
+.my-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.8rem;
+}
+
+.my-data-delete {
+  color: var(--danger);
+}
+
+.my-data-input,
+.my-data-add-form input,
+.my-data-add-form select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.my-data-add {
+  margin: 0.6rem 0;
+}
+
+.my-data-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.my-data-row-error {
+  color: var(--danger);
+  font-size: 0.85em;
+  margin: 0;
+}
+
+.my-data-journal {
+  margin: 0.6rem 0 0;
+}
+
+.my-data-journal ul {
+  margin: 0.3rem 0;
+  padding-left: 1rem;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+@media (width < 600px) {
+  .my-data-input,
+  .my-data-add-form input,
+  .my-data-add-form select {
+    font-size: 16px;
+  }
+}
+
+/* --- Ф90-1: окно сессии — одна строка сверху, одна снизу (план `docs/architecture.md`, Р1/Р2) ---- */
+
+/* Телефон: в открытой сессии нет полосы раздела; при открытой клавиатуре нет и нижних вкладок. */
+.phone-shell.phone-shell--session {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.phone-shell.phone-shell--typing {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.phone-shell.phone-shell--session.phone-shell--typing {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.session-head-bar {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0 0.25rem 0 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.session-head-bar .phone-session-title {
+  flex: 1 1 auto;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 0.95rem;
+}
+
+.session-head-bar .phone-session-menu-button {
+  margin-left: 0;
+}
+
+.session-head-dot,
+.board-col-dot {
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.board-dot--silent {
+  background: var(--danger);
+}
+
+button.board-col-auto {
+  flex: none;
+  min-height: 0;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+}
+
+.board-col-head--one {
+  flex-wrap: nowrap;
+}
+
+.board-col-head--one .board-col-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-col-head--one .board-col-spacer {
+  display: none;
+}
+
+/* Предупреждения окна — по одной строке (полный текст — в подсказке и в «Сведениях»). */
+.session-window--column .session-sub-stale,
+.session-window--column .session-sub-autosend,
+.session-window--column .session-auto-hint,
+.session-window--column .session-failure {
+  margin: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-window--column .session-sub-heavy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.5rem;
+  margin: 0.1rem 0.4rem;
+}
+
+.session-window--column .session-requests {
+  margin: 0 0.25rem;
+}
+
+.session-cards-more {
+  align-self: flex-start;
+  font-size: 0.8rem;
+}
+
+/* Строка работы — только пока идёт ход. */
+.session-window--column .session-statusline {
+  margin: 0 0.5rem;
+}
+
+/* Поле ввода: [📎] [поле 1–6 строк] [🎤] [➤] ([▾] [⏹] пока идёт ход). */
+.work-say--bar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.work-say-row {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.work-say-row .work-say-text {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  min-height: 2.5rem;
+  max-height: 9rem;
+  margin: 0;
+  padding: 0.45rem 0.5rem;
+  line-height: 22px;
+  resize: none;
+  overflow-y: auto;
+}
+
+.work-say-row > button {
+  flex: none;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.4rem;
+}
+
+.work-say-row .dictate {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.work-say-row .dictate-label {
+  display: none;
+}
+
+.work-say-menu {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  z-index: var(--z-popup);
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--bg, #fff);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.work-say-menu button {
+  min-height: 2.5rem;
+  white-space: nowrap;
+}
+
+/* «Сведения» в «⋯»: чипы и строки, которые раньше занимали шапку и низ окна. */
+.session-menu-info {
+  padding: 0.25rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  overflow-wrap: anywhere;
+}
+
+.session-menu-info p {
+  margin: 0.15rem 0;
+}
+
+.session-menu-info-state {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.session-menu-info-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+/* Служебные строки ленты — мельче и серее. */
+.work-event[data-kind='turn_end'],
+.work-event--note {
+  font-size: 0.75rem;
+  color: var(--muted-fg);
+  padding: 0;
+}
+
+.work-event[data-by='agent'] {
+  color: var(--accent, #6b4fbb);
+}
+
+.session-window--column .work-events-older {
+  align-self: center;
+  font-size: 0.75rem;
+}
+
+/* Карточка запроса в окне сессии — одной строкой, пока свёрнута: «Просит: Bash  команда…  ⌄  [Разрешить] [Нет]». */
+.session-requests .work-request--line {
+  flex-wrap: nowrap;
+  gap: 0.15rem 0.4rem;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+}
+
+.session-requests .work-request--line .work-request-head {
+  flex: none;
+  white-space: nowrap;
+}
+
+.session-requests .work-request--line .work-request-command.work-request-preview--one {
+  flex: 1 1 2rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.session-requests .work-request--line .work-request-views,
+.session-requests .work-request--line .work-request-actions {
+  flex: none;
+}
+
+.session-requests .work-request--line .work-request-actions button {
+  min-height: 2rem;
+  padding: 0 0.5rem;
+}
+
+/* Ф90-3: поле ввода беседы — одна строка [📎] [поле 1–6 строк] [🎤] [➤]; файл, «Из буфера» и голосовое — в меню 📎. */
+.composer {
+  gap: 0.25rem;
+  padding: 0.25rem;
+}
+
+.composer-row {
+  position: relative;
+  flex: 1 1 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.composer-row textarea {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  min-height: 2.5rem;
+  max-height: 9rem;
+  margin: 0;
+  padding: 0.45rem 0.5rem;
+  line-height: 22px;
+  resize: none;
+  overflow-y: auto;
+}
+
+.composer-row > button,
+.composer-attach-wrap > .composer-attach {
+  flex: none;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.4rem;
+}
+
+.composer-row .dictate {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.composer-row .dictate-label {
+  display: none;
+}
+
+.composer-attach-wrap {
+  position: relative;
+  flex: none;
+}
+
+.composer-attach-menu {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  z-index: var(--z-popup);
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--bg, #fff);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.composer-attach-menu button {
+  min-height: 2.5rem;
+  padding: 0 0.6rem;
+  text-align: left;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+}
+
+.composer-voice:empty {
+  display: none;
+}
+
+/* Ф90-3: шапка беседы — одна строка: название с многоточием, источник и значки мелко, всё остальное — в «⋯». */
+.feed-header--compact,
+.channel-modal-head {
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  min-height: 0;
+}
+
+.feed-header--compact > *:not(h2),
+.channel-modal-head > *:not(.channel-modal-title) {
+  flex: none;
+}
+
+.feed-header--compact .autosend-chip,
+.feed-header--compact .chan-sub-mark,
+.feed-header--compact .channel-sleep-mark {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.7rem;
+}
+
+.feed-header--compact .source-label,
+.channel-modal-head .source-label {
+  font-size: 0.7rem;
+}
+
+.channel-modal-head .channel-modal-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.channel-modal-head .board-col-spacer {
+  flex: 1 1 0;
+}
+
+.board-channel-info {
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--muted-fg);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Ф96-1: руки посреди поручения агента (`ErrandHands.vue`). */
+.errand-hands {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.errand-hands-line {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.errand-hands-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.errand-hands-note {
+  flex: 1 1 10rem;
+  min-width: 0;
+  max-width: 100%;
+}

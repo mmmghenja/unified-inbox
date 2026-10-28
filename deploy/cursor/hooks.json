@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {"command": "@HOOK@ cursor start", "timeout": 30}
+    ],
+    "preToolUse": [
+      {"matcher": "MCP:hub_", "command": "@HOOK@ cursor pre", "timeout": 30}
+    ],
+    "postToolUse": [
+      {"matcher": "MCP:hub_subscribe", "command": "@HOOK@ cursor post", "timeout": 30}
+    ],
+    "stop": [
+      {"command": "@HOOK@ cursor stop", "timeout": 86400, "loop_limit": null}
+    ],
+    "sessionEnd": [
+      {"command": "@HOOK@ cursor end", "timeout": 20}
+    ]
+  }
+}

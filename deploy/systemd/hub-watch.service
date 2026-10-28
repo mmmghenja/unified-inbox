@@ -1,0 +1,22 @@
+# Разовый прогон `hub watch` — дёргается таймером hub-watch.timer. НЕ через core (план, раздел 1): watch
+# должен уметь заметить и смерть самого core. Спецификация: docs/architecture.md
+
+[Unit]
+Description=hub watch (разовая проверка состояния)
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md).
+ConditionPathExists=%h/.config/hub/primary
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/projects/hub-prod/.venv/bin/hub watch
+# Пишет только watch-state.json в каталоге данных; D-Bus для notify-send — unix-сокет в /run/user.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+ReadWritePaths=%h/.local/share/hub
+RestrictAddressFamilies=AF_UNIX AF_INET

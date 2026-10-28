@@ -1,0 +1,13 @@
+# Спецификация: docs/architecture.md `Persistent=true` — ноутбук ночью спит,
+# пропущенный `OnCalendar` догоняется при следующем включении.
+
+[Unit]
+Description=hub backup — таймер
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

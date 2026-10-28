@@ -1,0 +1,18 @@
+MIME-Version: 1.0
+Message-ID: <att-2@example.com>
+Subject: scan
+From: Scanner <scan@example.com>
+To: me@gmail.com
+Content-Type: multipart/mixed; boundary="mix"
+
+--mix
+Content-Type: application/pdf; name="scan.pdf"
+Content-Disposition: attachment; filename="scan.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQgZmFrZSBwZGYgYm9keSVQREYtMS40IGZha2UgcGRmIGJvZHklUERGLTEuNCBmYWtl
+IHBkZiBib2R5JVBERi0xLjQgZmFrZSBwZGYgYm9keSVQREYtMS40IGZha2UgcGRmIGJvZHklUERG
+LTEuNCBmYWtlIHBkZiBib2R5JVBERi0xLjQgZmFrZSBwZGYgYm9keSVQREYtMS40IGZha2UgcGRm
+IGJvZHklUERGLTEuNCBmYWtlIHBkZiBib2R5JVBERi0xLjQgZmFrZSBwZGYgYm9keQ==
+
+--mix--

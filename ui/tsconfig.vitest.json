@@ -1,0 +1,11 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "node_modules/.tmp/tsconfig.vitest",
+    "tsBuildInfoFile": "node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+    "strict": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.json", "tests/**/*.ts"]
+}

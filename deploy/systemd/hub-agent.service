@@ -1,0 +1,38 @@
+# Дежурный агент, ярус 1 — разборщик входящих: карточки по правилам и уведомления, без модели (Ф57-1,
+# docs/architecture.md; прежде — docs/architecture.md). Ходит только в ядро
+# на 127.0.0.1:8787 (ядро может слушать и по ::1 — RestrictAddressFamilies ниже не сужается).
+# Копируется scripts/hub-units-install.sh, но НЕ включается там: включает владелец после `hub agent setup`
+# командой `systemctl --user enable --now hub-agent.service`.
+# Песочница — как у коннектора, но писать можно ТОЛЬКО в каталог состояния агента: конфиг и токен
+# читаются через ProtectHome=read-only. Каталог %h/.local/share/hub/agent создают `hub agent setup` и
+# hub-units-install.sh (иначе ReadWritePaths роняет юнит с 226/NAMESPACE). notify-send ходит в D-Bus сессии
+# через unix-сокет /run/user/<uid>/bus — переменные сессии у user-менеджера systemd есть, как у hub-watch.
+
+[Unit]
+Description=hub agent (дежурный: разбор входящих)
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md).
+ConditionPathExists=%h/.config/hub/primary
+After=hub-core.service
+
+[Service]
+Type=simple
+ExecStart=%h/projects/hub-prod/.venv/bin/hub agent run
+Restart=on-failure
+RestartSec=10
+# 78 = токен агента отозван (401 от ядра и после перечитывания файла токена): рестарт ничего не починит,
+# нужен `hub agent setup`.
+RestartPreventExitStatus=78
+# По SIGTERM агент 20 с пытается поставить карточки созревших бесед (поправка П10).
+TimeoutStopSec=30
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/hub/agent
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+
+[Install]
+WantedBy=default.target

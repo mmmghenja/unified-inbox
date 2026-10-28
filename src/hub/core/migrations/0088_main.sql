@@ -1,0 +1,5 @@
+-- Ф57-2 (docs/architecture.md): режима «сводка раз в день» (`digest`) в политике
+-- проектов больше нет. В объекте `attention`: значения `digest` (ключи вида, `default`, `account:<id>`) -> `info`
+-- (сводка означала «не уведомлять»), ключ `digest_at` удаляется; прочее — как было. Битый JSON, `attention` не
+-- объектом, NULL — строка не трогается (образец — 0086_main.sql).
+UPDATE project SET agent_policy_json = json_set(agent_policy_json, '$.attention', (SELECT json_group_object(e.key, CASE WHEN e.type = 'text' AND e.value = 'digest' THEN 'info' WHEN e.type IN ('object', 'array') THEN json(e.value) WHEN e.type IN ('true', 'false', 'null') THEN json(e.type) ELSE json(json_quote(e.value)) END) FROM json_each(agent_policy_json, '$.attention') AS e WHERE e.key <> 'digest_at')) WHERE CASE WHEN json_valid(agent_policy_json) THEN json_type(agent_policy_json, '$.attention') = 'object' ELSE 0 END AND EXISTS (SELECT 1 FROM json_each(agent_policy_json, '$.attention') AS t WHERE t.key = 'digest_at' OR (t.type = 'text' AND t.value = 'digest'));

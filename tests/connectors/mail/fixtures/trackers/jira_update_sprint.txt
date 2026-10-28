@@ -1,0 +1,49 @@
+Логотип Jira
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/jiraHeader.315f59f2.png]
+
+www.example.comПользователь выполнил 1 обновление
+
+AcmeApp
+[https://acme.atlassian.net/browse/APP?atlOrigin=eyJpIjoiYjA5In0] / APP-27
+[https://acme.atlassian.net/browse/APP-27?atlOrigin=eyJpIjoiYjA5In0]
+
+Заменить баннер на главном экране
+[https://acme.atlassian.net/browse/APP-27?atlOrigin=eyJpIjoiYjA5In0]
+
+Avatar
+[https://secure.gravatar.com/avatar/00112233445566778899aabbccddeeff?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FW-1.png]  www.example.com  13:47
+Лондон
+
+Sprint : ACME_Sprint 2, ACME_Sprint 3&#x2192;
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/arrow-right.cba41ddd.png]ACME_Sprint
+2, ACME_Sprint 3, ACME_Sprint 4
+
+Статус : READY FOR TEST&#x2192;
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/arrow-right.cba41ddd.png]TEST
+
+Просмотреть задачу
+[https://acme.atlassian.net/browse/APP-27?atlOrigin=eyJpIjoiYjA5In0]
+
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/lightBulb.bef98133.png]
+
+Подсказка. Обновляйте задачи прямо из почтового ящика. Установите расширение
+Atlassian для электронной почты Gmail
+[https://workspace.google.com/marketplace/app/atlassian/331162826608] или
+Outlook
+[https://marketplace.microsoft.com/en-us/product/office/wa200000056?tab=overview].
+
+Download on the App Store
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/appStore.4f944b65.png]https://itunes.apple.com/app/apple-store/id1006972087?pt=696495&ct=EmailNotificationLink&mt=8Get
+it on Google Play
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/playStore.e167f07b.png]https://play.google.com/store/apps/details?id=com.atlassian.android.jira.core&referrer=utm_source%3DNotificationLink%26utm_medium%3DEmail
+
+Это электронное письмо отправлено из Atlassian Jira • Политика
+конфиденциальности [https://www.atlassian.com/legal/privacy-policy] • Оставить
+отзыв [https://surveys.atlassian.com/jfe/form/SV_9X3zi1X4q1gKsqF]
+
+Atlassian logo
+[https://post-office-rml-frontend.prod-east.frontend.public.atl-paas.net/assets/atlassianLogoBlue.cd00e0d9.png]
+
+Если вы больше не хотите получать эти электронные сообщения, обновите свои
+настройки или отпишитесь от рассылки здесь
+[https://acme.atlassian.net/jira/settings/personal/notifications?emailPreferences=true#emailpreferences].

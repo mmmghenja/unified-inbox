@@ -1,0 +1,29 @@
+# Контекст сборки образа: только то, что нужно демо (pyproject, uv.lock, src, demo, ui без тестов).
+.git
+.github
+.gitignore
+.dockerignore
+.env*
+*.session
+*.key
+*.pem
+*.db
+*.db-*
+
+# не нужно образу
+tests
+**/tests
+docs
+scripts
+deploy
+
+# сборочный мусор и локальные окружения
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+node_modules
+**/node_modules
+ui/dist
+dist

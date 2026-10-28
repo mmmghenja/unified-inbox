@@ -1,0 +1,42 @@
+/* Светлая/тёмная тема через prefers-color-scheme (спека: «без красоты», системные цвета/шрифты). */
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --border: #d0d0d0;
+  --muted-fg: #6b6b6b;
+  --accent: #2b6cb0;
+  --danger: #b03030;
+  --warn: #b08a00;
+  --ok: #2f8f4e;
+  --surface: #f4f4f4;
+  /* Ф80-1 B4: одна шкала слоёв. Доска < всплывающие меню < правые панели < верхнее меню «⋯» < затемнение и модалки <
+     терминал < просмотрщик. Терминал выше модалок: «▶ в терминал» из окна «Написать…» на телефоне открывал его под
+     окном (25.10); модалки кончаются над панелью терминала (`bottom: var(--term-h)`). Новый слой — только через эти
+     переменные. */
+  --z-popup: 10;
+  --z-panel: 20;
+  --z-topmenu: 25;
+  --z-modal: 40;
+  --z-terminal: 45;
+  --z-viewer: 50;
+  --term-h: 0px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1b1b;
+    --fg: #eaeaea;
+    --border: #3a3a3a;
+    --muted-fg: #a0a0a0;
+    --accent: #6fa8dc;
+    --danger: #e07a7a;
+    --warn: #e0c060;
+    --ok: #7fcf9a;
+    --surface: #262626;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}

@@ -1,0 +1,37 @@
+MIME-Version: 1.0
+Message-ID: <att-1@example.com>
+Subject: =?UTF-8?B?0KHRh9C10YI=?=
+From: Buh <buh@example.com>
+To: me@gmail.com
+Content-Type: multipart/mixed; boundary="mix"
+
+--mix
+Content-Type: multipart/related; boundary="rel"
+
+--rel
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Счёт во вложении.
+
+--rel
+Content-Type: image/png
+Content-Disposition: inline; filename="logo.png"
+Content-ID: <logo>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgogZmFrZQ==
+
+--rel--
+
+--mix
+Content-Type: application/pdf; name="=?UTF-8?B?0YHRh9C10YIucGRm?="
+Content-Disposition: attachment; filename="=?UTF-8?B?0YHRh9C10YIucGRm?="
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQgZmFrZSBwZGYgYm9keSVQREYtMS40IGZha2UgcGRmIGJvZHklUERGLTEuNCBmYWtl
+IHBkZiBib2R5JVBERi0xLjQgZmFrZSBwZGYgYm9keSVQREYtMS40IGZha2UgcGRmIGJvZHklUERG
+LTEuNCBmYWtlIHBkZiBib2R5JVBERi0xLjQgZmFrZSBwZGYgYm9keSVQREYtMS40IGZha2UgcGRm
+IGJvZHklUERGLTEuNCBmYWtlIHBkZiBib2R5JVBERi0xLjQgZmFrZSBwZGYgYm9keQ==
+
+--mix--

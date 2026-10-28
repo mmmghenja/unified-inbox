@@ -1,0 +1,33 @@
+# Спутник уведомлений рабочего стола (Ф33-2, docs/architecture.md): живёт на машине с экраном
+# (ноутбук), long-poll'ом берёт уведомления владельца из кольца ядра (`GET /api/v1/notify/wait`, токен ровно со
+# скоупом `notify`) и показывает их `notify-send`. Ядро может быть на этой же машине или на другой — спутник
+# работает одинаково; адрес ядра — `--url` (по умолчанию http://127.0.0.1:8787/api/v1, на туннеле — тот же).
+# Копируется scripts/hub-units-install.sh, но НЕ включается там: включает владелец после `hub notify setup`
+# командой `systemctl --user enable --now hub-notify.service`. Без флага площадки: нужен именно там, где экран.
+# notify-send ходит в D-Bus сессии через /run/user/<uid>/bus — как у hub-watch и hub-agent; ProtectHome=read-only
+# оставляет токен (~/.config/hub/notify.token) читаемым.
+
+[Unit]
+Description=hub notify (уведомления рабочего стола из ядра)
+After=hub-core.service
+
+[Service]
+Type=simple
+ExecStart=%h/projects/hub-prod/.venv/bin/hub notify run
+Restart=on-failure
+RestartSec=10
+# 78 = нет токена или ядро его не принимает: рестарт ничего не починит, нужен `hub notify setup`.
+RestartPreventExitStatus=78
+TimeoutStopSec=15
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+MemoryMax=128M
+
+[Install]
+WantedBy=default.target

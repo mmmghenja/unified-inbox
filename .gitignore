@@ -1,0 +1,16 @@
+.runs/
+*.session
+secrets.env
+*.db
+*.db-wal
+*.db-shm
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+dist/
+.claude/settings.local.json
+.playwright-mcp/
+.claude/worktrees/
+/bin/

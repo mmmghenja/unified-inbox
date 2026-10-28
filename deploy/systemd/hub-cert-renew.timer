@@ -1,0 +1,13 @@
+# Ф14-9, решение 8: `certbot renew` раз в сутки ночью. `Persistent=true` — ноутбук ночью спит, пропущенный запуск
+# догоняется при следующем включении. Включает scripts/hub-tls-setup.sh (после первого сертификата).
+
+[Unit]
+Description=hub: продление сертификата https для телефона — таймер
+
+[Timer]
+OnCalendar=*-*-* 04:30
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

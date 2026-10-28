@@ -1,0 +1,33 @@
+# Расшифровка входящих голосовых локальной моделью (Ф14-6, docs/architecture.md).
+# Служба — обычный клиент API ядра (как hub-agent): берёт задания лизом, файл — `GET /media/{id}`, ffmpeg в wav,
+# движок `engine.py` интерпретатором и моделями диктовки (~/.local/share/dictation_tool, только чтение), отчёт.
+# Копируется scripts/hub-units-install.sh, но НЕ включается там: включает владелец после `hub transcribe setup`
+# командой `systemctl --user enable --now hub-transcribe.service`.
+# Песочница — как у hub-agent, но БЕЗ PrivateDevices (движку нужны /dev/nvidia*) и без MemoryDenyWriteExecute
+# (CUDA собирает код на лету). Писать можно ТОЛЬКО в каталог службы: токен, настройки и модели читаются через
+# ProtectHome=read-only. Каталог %h/.local/share/hub/transcribe создают `hub transcribe setup` и
+# hub-units-install.sh (иначе ReadWritePaths роняет юнит с 226/NAMESPACE). Кэш CUDA — там же.
+[Unit]
+Description=hub transcribe (расшифровка голосовых)
+After=hub-core.service
+[Service]
+Type=simple
+ExecStart=%h/projects/hub-prod/.venv/bin/hub transcribe run
+Restart=on-failure
+RestartSec=10
+# 78 = нет токена или он отозван: рестарт ничего не починит, нужен `hub transcribe setup`.
+RestartPreventExitStatus=78
+TimeoutStopSec=30
+Environment=CUDA_CACHE_PATH=%h/.local/share/hub/transcribe/cuda-cache
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/hub/transcribe
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+SystemCallArchitectures=native
+UMask=0077
+
+[Install]
+WantedBy=default.target

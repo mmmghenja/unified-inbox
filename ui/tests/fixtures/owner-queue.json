@@ -1,0 +1,912 @@
+{
+ "items": [
+  {
+   "ref": "req:101",
+   "kind": "permission",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Bash: git push origin main",
+   "full": {
+    "id": 101,
+    "tool": "Bash",
+    "kind": "permission",
+    "input_text": "git push origin main",
+    "reason": "публикация",
+    "passed": {
+     "role": "менеджер",
+     "role_no": 1,
+     "sub_id": 5,
+     "ts": 1760359700000,
+     "text": "не уверен, можно ли пушить"
+    },
+    "questions": []
+   },
+   "created_ts": 1760352800000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "allow",
+     "label": "Разрешить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "deny",
+     "label": "Отказать",
+     "needs_text": false,
+     "takes_text": true,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "req:102",
+   "kind": "question",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "вопрос: Какой тариф выбрать?",
+   "full": {
+    "id": 102,
+    "tool": "AskUserQuestion",
+    "kind": "question",
+    "questions": [
+     {
+      "n": 1,
+      "question": "Какой тариф выбрать?",
+      "shown": "Какой тариф выбрать?",
+      "options": [
+       "Базовый",
+       "Про"
+      ],
+      "multi": false
+     }
+    ]
+   },
+   "created_ts": 1760357000000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "answer",
+     "label": "Ответить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": true
+    },
+    {
+     "action": "deny",
+     "label": "Отказать",
+     "needs_text": false,
+     "takes_text": true,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "human:7",
+   "kind": "human",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "менеджер",
+   "role_no": 2,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "менеджер"
+   },
+   "brief": "captcha jobs.example Реши капчу",
+   "full": {
+    "id": 7,
+    "kind": "captcha",
+    "site": "jobs.example",
+    "url": "https://jobs.example/login?x=1",
+    "doing": "подаю заявку",
+    "need": "Реши капчу",
+    "profile": "work",
+    "tab": "Вкладка 2",
+    "shot": {
+     "size": 1234,
+     "mime": "image/png"
+    },
+    "expires_ts": 1760360480000
+   },
+   "created_ts": 1760359820000,
+   "until_ts": 1760360480000,
+   "in_channel": true,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "done",
+     "label": "Готово",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "failed",
+     "label": "Не вышло",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "later",
+     "label": "Не сейчас",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [
+    {
+     "id": "solve",
+     "label": "Решить",
+     "kinds": [
+      "human"
+     ],
+     "needs_text": false
+    },
+    {
+     "id": "note",
+     "label": "Передать заметку",
+     "kinds": [],
+     "needs_text": true
+    }
+   ],
+   "errand": null
+  },
+  {
+   "ref": "draft:55",
+   "kind": "draft",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "маркетолог",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "маркетолог"
+   },
+   "brief": "Тарифы · Добрый день! Высылаю счёт",
+   "full": {
+    "id": 55,
+    "text": "Добрый день! Высылаю счёт.",
+    "channel_title": "Тарифы",
+    "send_at_ts": 1760363600000
+   },
+   "created_ts": 1760359100000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "approve",
+     "label": "Отправить",
+     "needs_text": false,
+     "takes_text": true,
+     "needs_answers": false
+    },
+    {
+     "action": "cancel",
+     "label": "Отклонить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "press:9",
+   "kind": "press",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "кнопка «Продлить» · Demo VPN",
+   "full": {
+    "id": 9,
+    "text": "Продлить",
+    "channel_title": "Demo VPN"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": 1760361800000,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "approve",
+     "label": "Нажать",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "decline",
+     "label": "Не нажимать",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "join:4",
+   "kind": "join",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "@demo_chat",
+   "full": {
+    "id": 4,
+    "title": "@demo_chat"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "approve",
+     "label": "Вступить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "decline",
+     "label": "Не вступать",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "leave:2",
+   "kind": "leave",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Выйти из канала",
+   "full": {
+    "id": 2,
+    "title": "канал"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "approve",
+     "label": "Выйти",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "decline",
+     "label": "Оставить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "rule:3",
+   "kind": "rule",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Завести правило jobs.example → Hooli",
+   "full": {
+    "id": 3,
+    "value": "jobs.example"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "approve",
+     "label": "Завести",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "decline",
+     "label": "Отклонить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "agent_request:6",
+   "kind": "agent_request",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Нужна сессия-напарник",
+   "full": {
+    "id": 6,
+    "role": "тестер"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "approve",
+     "label": "Одобрить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "decline",
+     "label": "Отклонить",
+     "needs_text": false,
+     "takes_text": true,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "reminder:8",
+   "kind": "reminder",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Позвонить клиенту",
+   "full": {
+    "id": 8,
+    "text": "Позвонить клиенту"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "done",
+     "label": "Закрыть",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "heavy:11",
+   "kind": "heavy",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Тяжёлая сессия ждёт подъёма",
+   "full": {
+    "pending": 2,
+    "title": "программист"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "wake",
+     "label": "Поднять",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "paused:11",
+   "kind": "paused",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Пауза лимита",
+   "full": {
+    "pending": 1,
+    "queued_says": 1,
+    "title": "программист"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "wake",
+     "label": "Отправить всё равно",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "say:21",
+   "kind": "interrupted",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Прерванная реплика",
+   "full": {
+    "id": 21,
+    "text": "сделай отчёт",
+    "files": [],
+    "interrupted_ts": 1760354600000
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "resend",
+     "label": "Отправить снова",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "drop",
+     "label": "Убрать",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "turn:11:4",
+   "kind": "turn",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Готово: добавил фильтр.\nТесты зелёные.",
+   "full": {
+    "answer": "## Итог\nДобавил **фильтр**.\n\nТесты зелёные.",
+    "cut": false,
+    "turns": 4,
+    "by_ui_say": false,
+    "state": "idle",
+    "wait_reason": null
+   },
+   "created_ts": 1760359520000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "reply",
+     "label": "Ответить",
+     "needs_text": true,
+     "takes_text": true,
+     "needs_answers": false
+    },
+    {
+     "action": "ok",
+     "label": "Принял",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "agent_msg:31",
+   "kind": "agent_msg",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": null,
+   "role": "маркетолог",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "маркетолог",
+    "about": "секретарь"
+   },
+   "brief": "секретарь: нужен доступ к таблице",
+   "full": {
+    "text": "Нужен доступ к таблице тарифов, без него не могу закончить.",
+    "ask": true,
+    "about_role": "секретарь",
+    "reply_to": null,
+    "chain_id": 31
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "reply",
+     "label": "Ответить",
+     "needs_text": true,
+     "takes_text": true,
+     "needs_answers": false
+    },
+    {
+     "action": "ok",
+     "label": "Прочитал",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "stall:11:1",
+   "kind": "stall",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Сессия стоит без дела 40 мин",
+   "full": {
+    "silent_min": 40,
+    "state": "idle",
+    "subs": 1,
+    "reminders": 0,
+    "bg": 0,
+    "wake_at_ts": null
+   },
+   "created_ts": 1760357600000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "say",
+     "label": "Написать",
+     "needs_text": true,
+     "takes_text": true,
+     "needs_answers": false
+    },
+    {
+     "action": "hold",
+     "label": "Пусть ждёт",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "broken:11:1",
+   "kind": "broken",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Ход оборван",
+   "full": {
+    "note": "процесс умер",
+    "step": "Bash",
+    "state": "error"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "wake",
+     "label": "Поднять и продолжить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "say",
+     "label": "Написать",
+     "needs_text": true,
+     "takes_text": true,
+     "needs_answers": false
+    },
+    {
+     "action": "sleep",
+     "label": "Пусть спит",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "dead:11:1",
+   "kind": "dead",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Не запускается",
+   "full": {
+    "failure": "нет claude",
+    "fails": 3,
+    "engine": "claude"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "retry",
+     "label": "Попробовать снова",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "say",
+     "label": "Написать",
+     "needs_text": true,
+     "takes_text": true,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "stuck:11:1",
+   "kind": "stuck",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Завис на Bash",
+   "full": {
+    "since_ts": 1760358200000,
+    "step": "Bash",
+    "origin": "turn",
+    "turn_since_ts": 1760357900000,
+    "state": "running"
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": false,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "stop",
+     "label": "Стоп",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "interrupt",
+     "label": "Прервать и сказать…",
+     "needs_text": true,
+     "takes_text": true,
+     "needs_answers": false
+    },
+    {
+     "action": "wait",
+     "label": "Пусть работает",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": null
+  },
+  {
+   "ref": "req:104",
+   "kind": "permission",
+   "project_id": 3,
+   "project_name": "Umbrella",
+   "session_id": 11,
+   "role": "программист",
+   "role_no": 1,
+   "path": {
+    "project": "Umbrella",
+    "head": "оркестратор",
+    "author": "программист"
+   },
+   "brief": "Bash: ls",
+   "full": {
+    "id": 104,
+    "tool": "Bash",
+    "kind": "permission",
+    "input_text": "ls",
+    "reason": null
+   },
+   "created_ts": 1760358200000,
+   "until_ts": null,
+   "in_channel": true,
+   "hold_ts": null,
+   "answers": [
+    {
+     "action": "allow",
+     "label": "Разрешить",
+     "needs_text": false,
+     "takes_text": false,
+     "needs_answers": false
+    },
+    {
+     "action": "deny",
+     "label": "Отказать",
+     "needs_text": false,
+     "takes_text": true,
+     "needs_answers": false
+    }
+   ],
+   "agent_actions": [],
+   "errand": {
+    "id": 77,
+    "action": "allow_it",
+    "label": "Разрешить за меня",
+    "text": null,
+    "created_ts": 1760359940000,
+    "progress": "проверяю"
+   }
+  }
+ ],
+ "seq": 500,
+ "agent": {
+  "online": true,
+  "seen_ts": 1760359995000
+ }
+}

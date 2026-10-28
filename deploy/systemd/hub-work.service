@@ -1,0 +1,33 @@
+# hub-work — хост рабочих сессий проектов (Ф9-1, 9a). Спецификация: docs/architecture.md и
+# поправки П10, П12, П14.
+# Копируется scripts/hub-units-install.sh, но НЕ включается там: включает владелец после `hub work setup` командой
+# `systemctl --user enable --now hub-work.service`.
+# Рабочая сессия = обычная сессия владельца в папке проекта (решение «Без песочницы»): ProtectHome и NoNewPrivileges
+# НЕ ставятся (docker, ssh, sudo-запросы навыков — как у владельца, на кнопках и гарде). UMask — обычный (П14): файлы
+# стендов читают контейнеры с другим uid; свои файлы хост пишет с 0600 явно.
+# Окружение (П14): файл, который пишет `hub work setup` из сессии владельца по разрешающему списку (SSH_AUTH_SOCK, PATH
+# с node из nvm v24 для MCP, LANG, прокси, DOCKER_HOST); хост дополнительно убирает ANTHROPIC_*, CLAUDE*, DISPLAY,
+# WAYLAND_DISPLAY, XAUTHORITY из окружения сессии.
+# KillMode=mixed (П12): SIGTERM получает только хост — он закрывает stdin сессиям, ждёт до 20 с и гасит деревья
+# процессов; остатки добивает systemd по TimeoutStopSec.
+
+[Unit]
+Description=hub work (рабочие сессии проектов)
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md).
+ConditionPathExists=%h/.config/hub/primary
+After=hub-core.service
+
+[Service]
+Type=simple
+ExecStart=%h/projects/hub-prod/.venv/bin/hub work run
+EnvironmentFile=-%h/.config/hub/work/env
+Restart=on-failure
+RestartSec=30
+# 78 = токен hub-work отозван (401 от ядра и после перечитывания файла токена): нужен `hub work setup`.
+# 75 = уже работает другой `hub work run` (блокировка host.lock).
+RestartPreventExitStatus=78 75
+TimeoutStopSec=30
+KillMode=mixed
+
+[Install]
+WantedBy=default.target

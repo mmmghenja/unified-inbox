@@ -1,0 +1,24 @@
+# Продление сертификата https для входа с телефона (Ф14-9, docs/architecture.md
+# и П3). Дёргается таймером hub-cert-renew.timer; certbot продлевает за 30 дней до конца, иначе ничего не делает.
+# Хук (`scripts/hub-tls-deploy-hook.sh`) certbot берёт из сохранённой конфигурации продления: копирует пару в
+# ~/.config/hub/tls/ и перезапускает hub-core (ядро читает пару только на старте).
+# Копируется scripts/hub-units-install.sh, но НЕ включается: таймер включает scripts/hub-tls-setup.sh.
+
+[Unit]
+Description=hub: продление сертификата https для телефона (certbot, DNS-01 Cloudflare)
+After=network-online.target
+# Ф33-4: только на главной площадке (флаг ставит scripts/hub-units-install.sh; docs/architecture.md).
+ConditionPathExists=%h/.config/hub/primary
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/certbot renew --quiet --config-dir %h/.config/hub/tls/certbot --work-dir %h/.local/state/hub/certbot --logs-dir %h/.local/state/hub/certbot/logs
+# П3: песочница явно. Пишет только certbot (свои каталоги) и хук (пара в ~/.config/hub/tls). Сеть — ACME и API
+# Cloudflare; `systemctl --user try-restart` из хука — по AF_UNIX.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.config/hub/tls %h/.local/state/hub/certbot
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0077

@@ -1,0 +1,97 @@
+/* Ф59-1: кнопка «Надиктовать» рядом с полями ввода (components/DictateButton.vue). */
+.dictate {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.dictate:empty {
+  display: none;
+}
+
+.dictate-btn,
+.dictate-stop {
+  font: inherit;
+  cursor: pointer;
+}
+
+.dictate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: inherit;
+}
+
+.dictate-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+}
+
+.dictate-level {
+  display: inline-block;
+  width: 3rem;
+  height: 0.5rem;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.dictate-level-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 80ms linear;
+}
+
+.dictate-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.dictate-status {
+  color: var(--muted-fg);
+  font-size: 0.85em;
+}
+
+.dictate-error {
+  flex-basis: 100%;
+  color: var(--danger);
+  font-size: 0.85em;
+}
+
+@media (width < 600px) {
+  .dictate-pill {
+    flex: 1 1 auto; /* плашка не шире поля, переносится */
+    min-width: 0;
+  }
+
+  .dictate-btn,
+  .dictate-stop {
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .dictate-label {
+    display: none; /* на телефоне — один значок 40×40 */
+  }
+
+  /* Приёмка: рядом бесцветный 🎤 голосового сообщения — диктовку отличает заливка. */
+  .dictate-btn {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+}

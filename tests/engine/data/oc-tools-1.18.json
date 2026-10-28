@@ -1,0 +1,340 @@
+{
+ "opencode": "1.18.31",
+ "source": "проба P8 29.09: GET /experimental/tool?provider=deepseek&model=deepseek-flash (xai/grok-4.7 — те же схемы байт в байт); только встроенные инструменты, MCP отброшены",
+ "ids": [
+  "invalid",
+  "question",
+  "bash",
+  "read",
+  "glob",
+  "grep",
+  "edit",
+  "write",
+  "task",
+  "webfetch",
+  "todowrite",
+  "websearch",
+  "skill",
+  "apply_patch"
+ ],
+ "not_offered": {
+  "apply_patch": "в ids есть, модели DeepSeek/Grok его не получают (у них edit/write); вход — patchText с строками '*** Add File|Update File|Delete File|Move to: <путь>'",
+  "websearch": "в ids есть, этим моделям не выдан",
+  "list": "в 1.18.31 нет"
+ },
+ "tools": {
+  "invalid": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "tool": {
+     "type": "string"
+    },
+    "error": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "tool",
+    "error"
+   ]
+  },
+  "question": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "questions": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "question": {
+        "type": "string",
+        "description": "Complete question"
+       },
+       "header": {
+        "type": "string",
+        "description": "Very short label (max 30 chars)"
+       },
+       "options": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "label": {
+           "type": "string",
+           "description": "Display text (1-5 words, concise)"
+          },
+          "description": {
+           "type": "string",
+           "description": "Explanation of choice"
+          }
+         },
+         "required": [
+          "label",
+          "description"
+         ]
+        },
+        "description": "Available choices"
+       },
+       "multiple": {
+        "type": "boolean",
+        "description": "Allow selecting multiple choices"
+       }
+      },
+      "required": [
+       "question",
+       "header",
+       "options"
+      ]
+     },
+     "description": "Questions to ask"
+    }
+   },
+   "required": [
+    "questions"
+   ]
+  },
+  "bash": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "command": {
+     "type": "string",
+     "description": "The command to execute"
+    },
+    "timeout": {
+     "minimum": -9007199254740991,
+     "exclusiveMinimum": 0,
+     "type": "integer",
+     "maximum": 9007199254740991,
+     "description": "Optional timeout in milliseconds"
+    },
+    "workdir": {
+     "type": "string",
+     "description": "The working directory to run the command in. Defaults to the current directory. Use this instead of 'cd' commands."
+    }
+   },
+   "required": [
+    "command"
+   ]
+  },
+  "read": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "filePath": {
+     "type": "string",
+     "description": "The absolute path to the file or directory to read"
+    },
+    "offset": {
+     "minimum": 0,
+     "type": "integer",
+     "maximum": 9007199254740991,
+     "description": "The line number to start reading from (1-indexed)"
+    },
+    "limit": {
+     "minimum": 0,
+     "type": "integer",
+     "maximum": 9007199254740991,
+     "description": "The maximum number of lines to read (defaults to 2000)"
+    }
+   },
+   "required": [
+    "filePath"
+   ]
+  },
+  "glob": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "pattern": {
+     "type": "string",
+     "description": "The glob pattern to match files against"
+    },
+    "path": {
+     "type": "string",
+     "description": "The directory to search in. If not specified, the current working directory will be used. IMPORTANT: Omit this field to use the default directory. DO NOT enter \"undefined\" or \"null\" - simply omit it for the default behavior. Must be a valid directory path if provided."
+    }
+   },
+   "required": [
+    "pattern"
+   ]
+  },
+  "grep": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "pattern": {
+     "type": "string",
+     "description": "The regex pattern to search for in file contents"
+    },
+    "path": {
+     "type": "string",
+     "description": "The directory to search in. Defaults to the current working directory."
+    },
+    "include": {
+     "type": "string",
+     "description": "File pattern to include in the search (e.g. \"*.js\", \"*.{ts,tsx}\")"
+    }
+   },
+   "required": [
+    "pattern"
+   ]
+  },
+  "edit": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "filePath": {
+     "type": "string",
+     "description": "The absolute path to the file to modify"
+    },
+    "oldString": {
+     "type": "string",
+     "description": "The text to replace"
+    },
+    "newString": {
+     "type": "string",
+     "description": "The text to replace it with (must be different from oldString)"
+    },
+    "replaceAll": {
+     "type": "boolean",
+     "description": "Replace all occurrences of oldString (default false)"
+    }
+   },
+   "required": [
+    "filePath",
+    "oldString",
+    "newString"
+   ]
+  },
+  "write": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "content": {
+     "type": "string",
+     "description": "The content to write to the file"
+    },
+    "filePath": {
+     "type": "string",
+     "description": "The absolute path to the file to write (must be absolute, not relative)"
+    }
+   },
+   "required": [
+    "content",
+    "filePath"
+   ]
+  },
+  "task": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "description": {
+     "type": "string",
+     "description": "A short (3-5 words) description of the task"
+    },
+    "prompt": {
+     "type": "string",
+     "description": "The task for the agent to perform"
+    },
+    "subagent_type": {
+     "type": "string",
+     "description": "The type of specialized agent to use for this task"
+    },
+    "task_id": {
+     "type": "string",
+     "description": "This should only be set if you mean to resume a previous task (you can pass a prior task_id and the task will continue the same subagent session as before instead of creating a fresh one)"
+    },
+    "command": {
+     "type": "string",
+     "description": "The command that triggered this task"
+    }
+   },
+   "required": [
+    "description",
+    "prompt",
+    "subagent_type"
+   ]
+  },
+  "webfetch": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "url": {
+     "type": "string",
+     "description": "The URL to fetch content from"
+    },
+    "format": {
+     "type": "string",
+     "enum": [
+      "text",
+      "markdown",
+      "html"
+     ],
+     "description": "The format to return the content in (text, markdown, or html). Defaults to markdown.",
+     "default": "markdown"
+    },
+    "timeout": {
+     "type": "number",
+     "description": "Optional timeout in seconds (max 120)"
+    }
+   },
+   "required": [
+    "url"
+   ]
+  },
+  "todowrite": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "todos": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "content": {
+        "type": "string",
+        "description": "Brief description of the task"
+       },
+       "status": {
+        "type": "string",
+        "description": "Current status of the task: pending, in_progress, completed, cancelled"
+       },
+       "priority": {
+        "type": "string",
+        "description": "Priority level of the task: high, medium, low"
+       }
+      },
+      "required": [
+       "content",
+       "status",
+       "priority"
+      ]
+     },
+     "description": "The updated todo list"
+    }
+   },
+   "required": [
+    "todos"
+   ]
+  },
+  "skill": {
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "The name of the skill from available_skills"
+    }
+   },
+   "required": [
+    "name"
+   ]
+  }
+ },
+ "same_for": [
+  "xai/grok-4.7"
+ ]
+}
