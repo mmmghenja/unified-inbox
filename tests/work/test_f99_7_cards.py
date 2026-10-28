@@ -388,6 +388,8 @@ def test_review_always_dir_home_and_dotfiles_and_bash(tmp_path, monkeypatch):
     other = tmp_path / "other"
     other.mkdir()
     monkeypatch.setenv("HOME", str(home))
+    # tmp_path раннера CI лежит в /tmp — открытой для записи папке; без этого карточки нет вовсе.
+    monkeypatch.setattr(guard, "OPEN_WRITE_ROOTS", ("/nonexistent-open-root",))
     # Ключа на сам домашний каталог и его предков нет; на файл с именем на «.» — тоже.
     for target in (home / "notes.md", tmp_path / "x.md", other / ".rc"):
         assert always.key_of(

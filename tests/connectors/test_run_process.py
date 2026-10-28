@@ -100,6 +100,17 @@ def _add_fake_account(config_dir: Path, data_dir: Path) -> int:
     return account_id
 
 
+def _catches_sigterm(pid: int) -> bool:
+    """Процесс поставил свой обработчик SIGTERM (маска SigCgt в /proc/<pid>/status)."""
+    try:
+        for line in Path(f"/proc/{pid}/status").read_text().splitlines():
+            if line.startswith("SigCgt:"):
+                return bool(int(line.split()[1], 16) & (1 << (signal.SIGTERM - 1)))
+    except OSError:
+        pass
+    return False
+
+
 def test_1a_12_sigterm_on_live_connector_process_exits_zero(core_proc) -> None:
     _core, data_dir, config_dir, _port = core_proc
     account_id = _add_fake_account(config_dir, data_dir)
@@ -113,8 +124,14 @@ def test_1a_12_sigterm_on_live_connector_process_exits_zero(core_proc) -> None:
         text=True,
     )
     try:
-        # Коннектор жив достаточно долго, чтобы завести фоновые задачи run() (пульс, толкатель, планировщик).
+        # Коннектор жив достаточно долго, чтобы завести фоновые задачи run() (пульс, толкатель,
+        # планировщик), и уже ловит SIGTERM: на медленном раннере CI секунды на импорт не хватало —
+        # сигнал убивал процесс (-15).
         time.sleep(1.0)
+        deadline = time.monotonic() + 20
+        while not _catches_sigterm(connector_proc.pid) and time.monotonic() < deadline:
+            assert connector_proc.poll() is None, connector_proc.stdout.read()
+            time.sleep(0.1)
         assert connector_proc.poll() is None, connector_proc.stdout.read()
 
         connector_proc.send_signal(signal.SIGTERM)
