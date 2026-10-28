@@ -391,8 +391,11 @@ async def test_text_deltas_become_live_states_with_throttle_done_and_ref(env, mo
     assert texts == [(full.strip(), "msg_A:1"), ("и ещё", "msg_A:4"), ("второе сообщение", "msg_B:0")]
     # Расход: в `result` нет `iterations` — контекст взят из последнего `message_delta`.
     assert (await _rec(env, sid))["usage"]["context_tokens"] == 1005
-    # Запись в памяти ядра снята концом хода.
-    assert env.app.state.live.get(sid, int(time.time() * 1000)) is None
+    # Запись в памяти ядра снята концом хода (на медленном раннере — не сразу).
+    def live_gone():
+        return env.app.state.live.get(sid, int(time.time() * 1000)) is None
+
+    await env.until(host, live_gone, what="live снята концом хода")
 
 
 async def test_live_reaches_core_stream_while_turn_runs(env):
